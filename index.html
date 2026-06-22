@@ -1029,6 +1029,38 @@
   .alert-confirm.show{ display:flex; animation:bIn .3s var(--ease-soft); }
   .alert-confirm svg{ width:16px; height:16px; stroke:#27c93f; fill:none; stroke-width:2.2; flex-shrink:0; }
 
+  /* ===================== CLEAN CONTACT FORM ===================== */
+  .clean-form-wrap{ margin-top:40px; max-width:680px; }
+  .clean-form{ display:grid; gap:16px; }
+  .cf-row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:640px){ .cf-row2{ grid-template-columns:1fr; } }
+  .cf-field{ display:grid; gap:7px; }
+  .cf-field label{
+    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .cf-field input, .cf-field select, .cf-field textarea{
+    height:46px; padding:0 16px; border-radius:6px;
+    border:1px solid var(--rule); background:rgba(255,255,255,.04);
+    color:var(--ink); font-size:14px; outline:none;
+    transition:border-color .2s var(--ease-soft), box-shadow .2s;
+    font-family:var(--sans);
+  }
+  .cf-field textarea{ height:96px; padding:12px 16px; resize:vertical; }
+  .cf-field input:focus, .cf-field select:focus, .cf-field textarea:focus{
+    border-color:var(--blue); box-shadow:0 0 0 3px rgba(69,157,251,.12);
+  }
+  .cf-submit{
+    height:50px; border-radius:6px; margin-top:4px;
+    background:var(--blue); color:#0b0e14; font-weight:800; font-size:14px;
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    transition:transform .2s var(--ease-soft), background .2s;
+    width:100%;
+  }
+  .cf-submit:hover{ transform:translateY(-2px); background:var(--blue-bright); }
+  .cf-submit:disabled{ opacity:.6; cursor:not-allowed; transform:none; }
+  .cf-note{ font-size:11.5px; color:var(--ink-faint); text-align:center; margin-top:4px; }
+
   /* ===================== PREMIUM LOADING INTERFACE ===================== */
   html.is-loading{ overflow:hidden; }
   html.is-loading body{ overflow:hidden; height:100vh; }
@@ -1629,32 +1661,15 @@
       <h2 class="ed-title">Tell us what you have. <em>We'll tell you what's missing.</em></h2>
       <p class="ed-lede">Submit your details below — this routes straight to our team's notification system, the same way a real lead-capture backend would.</p>
 
-      <div class="snippet-form-wrap">
-        <div class="snippet-head">
-          <div class="snippet-head-text">
-            <div class="snippet-dot-row"><span></span><span></span><span></span></div>
-            <h3>POST /api/leads/intake</h3>
-          </div>
-          <div class="snippet-status"><span class="live-dot"></span>Listening</div>
-        </div>
-        <div class="snippet-body">
-          <form class="snippet-form" id="snippetForm">
-            <div class="snippet-field">
-              <label for="snBusiness">Business Name</label>
+      <div class="clean-form-wrap">
+        <form class="clean-form" id="snippetForm" novalidate>
+          <div class="cf-row2">
+            <div class="cf-field">
+              <label for="snBusiness">Business Name *</label>
               <input id="snBusiness" type="text" placeholder="e.g. Dela Cruz Cleaning Services" required />
             </div>
-            <div class="snippet-row2">
-              <div class="snippet-field">
-                <label for="snContact">Contact Number</label>
-                <input id="snContact" type="text" placeholder="09XX XXX XXXX" required />
-              </div>
-              <div class="snippet-field">
-                <label for="snEmail">Email (optional)</label>
-                <input id="snEmail" type="email" placeholder="you@business.com" />
-              </div>
-            </div>
-            <div class="snippet-field">
-              <label for="snType">Business Type</label>
+            <div class="cf-field">
+              <label for="snType">Business Type *</label>
               <select id="snType" required>
                 <option value="" selected disabled>Select one</option>
                 <option>Local service</option>
@@ -1665,35 +1680,31 @@
                 <option>Other</option>
               </select>
             </div>
-            <div class="snippet-field">
-              <label for="snNote">What's the current problem?</label>
-              <textarea id="snNote" placeholder="e.g. We get messages on Facebook but reply too slow and lose customers."></textarea>
-            </div>
-            <button class="snippet-submit" type="submit">
-              <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-              Submit &amp; Notify Team
-            </button>
-            <div class="alert-confirm" id="alertConfirm">
-              <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-              <span>Lead captured — Google Alert &amp; team notification triggered.</span>
-            </div>
-          </form>
-
-          <div>
-            <div class="snippet-label-mini">Live Payload Preview</div>
-            <div class="snippet-preview" id="snippetPreview">{
-  <span class="json-key">"event"</span><span class="json-punct">:</span> <span class="json-str">"new_lead_intake"</span><span class="json-punct">,</span>
-  <span class="json-key">"source"</span><span class="json-punct">:</span> <span class="json-str">"am777_landing_page"</span><span class="json-punct">,</span>
-  <span class="json-key">"business_name"</span><span class="json-punct">:</span> <span class="json-str" id="pvBusiness">""</span><span class="json-punct">,</span>
-  <span class="json-key">"contact"</span><span class="json-punct">:</span> <span class="json-str" id="pvContact">""</span><span class="json-punct">,</span>
-  <span class="json-key">"email"</span><span class="json-punct">:</span> <span class="json-str" id="pvEmail">""</span><span class="json-punct">,</span>
-  <span class="json-key">"business_type"</span><span class="json-punct">:</span> <span class="json-str" id="pvType">""</span><span class="json-punct">,</span>
-  <span class="json-key">"note"</span><span class="json-punct">:</span> <span class="json-str" id="pvNote">""</span><span class="json-punct">,</span>
-  <span class="json-key">"lead_temperature"</span><span class="json-punct">:</span> <span class="json-str" id="pvTemp">"unscored"</span><span class="json-punct">,</span>
-  <span class="json-key">"notify"</span><span class="json-punct">:</span> <span class="json-punct">[</span><span class="json-str">"google_alert"</span><span class="json-punct">,</span> <span class="json-str">"whatsapp_team"</span><span class="json-punct">]</span>
-}</div>
           </div>
-        </div>
+          <div class="cf-row2">
+            <div class="cf-field">
+              <label for="snContact">Contact Number *</label>
+              <input id="snContact" type="text" placeholder="09XX XXX XXXX" required />
+            </div>
+            <div class="cf-field">
+              <label for="snEmail">Email (optional)</label>
+              <input id="snEmail" type="email" placeholder="you@business.com" />
+            </div>
+          </div>
+          <div class="cf-field">
+            <label for="snNote">What's your current challenge?</label>
+            <textarea id="snNote" placeholder="e.g. We get messages on Facebook but reply too slow and lose customers."></textarea>
+          </div>
+          <button class="cf-submit" type="submit">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Send to AM777 Team
+          </button>
+          <p class="cf-note">🔒 Confidential &middot; No spam &middot; We respond within 24 hours</p>
+          <div class="alert-confirm" id="alertConfirm" style="display:none;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>Inquiry received — we'll reach out shortly!</span>
+          </div>
+        </form>
       </div>
 
       <div class="brand-cta-row" style="margin-top:32px;">
@@ -2353,59 +2364,33 @@
     document.getElementById('resultRetake').addEventListener('click', resetQuiz);
     document.addEventListener('keydown', e => { if(e.key === 'Escape' && quizOverlay.classList.contains('open')) closeQuiz(); });
 
-    // ===== SNIPPET-MODE BACKEND FORM (live JSON preview + notification trigger) =====
+    // ===== CONTACT FORM (clean, no debug preview) =====
     const snBusiness = document.getElementById('snBusiness');
     const snContact = document.getElementById('snContact');
     const snEmail = document.getElementById('snEmail');
     const snType = document.getElementById('snType');
     const snNote = document.getElementById('snNote');
-    const pvBusiness = document.getElementById('pvBusiness');
-    const pvContact = document.getElementById('pvContact');
-    const pvEmail = document.getElementById('pvEmail');
-    const pvType = document.getElementById('pvType');
-    const pvNote = document.getElementById('pvNote');
-    const pvTemp = document.getElementById('pvTemp');
-
-    function escapeJsonPreview(str){
-      return (str || '').replace(/"/g, '\\"');
-    }
-    function updateSnippetPreview(){
-      if(pvBusiness) pvBusiness.textContent = `"${escapeJsonPreview(snBusiness.value)}"`;
-      if(pvContact) pvContact.textContent = `"${escapeJsonPreview(snContact.value)}"`;
-      if(pvEmail) pvEmail.textContent = `"${escapeJsonPreview(snEmail.value)}"`;
-      if(pvType) pvType.textContent = `"${escapeJsonPreview(snType.value)}"`;
-      if(pvNote) pvNote.textContent = `"${escapeJsonPreview(snNote.value)}"`;
-      if(pvTemp){
-        const t = leadScore >= 6 ? 'hot' : leadScore >= 3 ? 'warm' : 'cold';
-        pvTemp.textContent = `"${t}"`;
-      }
-    }
-    [snBusiness, snContact, snEmail, snType, snNote].forEach(el => {
-      if(el) el.addEventListener('input', updateSnippetPreview);
-      if(el) el.addEventListener('change', updateSnippetPreview);
-    });
 
     const snippetForm = document.getElementById('snippetForm');
     const alertConfirm = document.getElementById('alertConfirm');
     if(snippetForm){
       snippetForm.addEventListener('submit', e => {
         e.preventDefault();
-        scoreSignal(2.5); // direct form submission is a high-intent signal
-        updateSnippetPreview();
+        scoreSignal(2.5);
 
-        const submitBtn = snippetForm.querySelector('.snippet-submit');
-        const originalText = submitBtn.innerHTML;
+        const submitBtn = snippetForm.querySelector('.cf-submit');
+        const originalHTML = submitBtn.innerHTML;
         submitBtn.innerHTML = 'Sending…';
         submitBtn.disabled = true;
 
         setTimeout(() => {
-          submitBtn.innerHTML = originalText;
+          submitBtn.innerHTML = originalHTML;
           submitBtn.disabled = false;
-          alertConfirm.classList.add('show');
+          alertConfirm.style.display = 'flex';
 
           const tempLabel = leadScore >= 6 ? 'HOT' : leadScore >= 3 ? 'WARM' : 'COLD';
           const waMsg = [
-            `[SETUP REVIEW FORM] [${tempLabel} LEAD]`,
+            `[SETUP REVIEW] [${tempLabel} LEAD]`,
             `Business: ${snBusiness.value}`,
             `Contact: ${snContact.value}`,
             `Email: ${snEmail.value || 'Not provided'}`,
