@@ -1053,8 +1053,28 @@ footer {
       source: 'done-for-you-landing',
       timestamp: new Date().toISOString()
     };
-    fetch(ZAPIER_WEBHOOK, { method: 'POST', body: JSON.stringify(payload) })
-      .catch(function () { console.log('Lead captured (webhook not configured yet):', payload); });
+
+    console.log('[AM777] Sending lead to Zapier:', payload);
+
+    // NOTE: Content-Type: application/json is intentionally NOT used here.
+    // Zapier's Catch Hook endpoint does not respond to CORS preflight (OPTIONS)
+    // requests, and a JSON content-type forces the browser to preflight first —
+    // the POST gets silently blocked before it ever reaches Zapier (confirmed by
+    // direct testing: identical payload as JSON = blocked, as form-urlencoded = 200 OK).
+    // URLSearchParams sends this as application/x-www-form-urlencoded, which is
+    // CORS-safelisted (no preflight), and Zapier parses it into the same individual
+    // top-level fields (name, email, business, etc.) as it would from a JSON body.
+    fetch(ZAPIER_WEBHOOK, {
+      method: 'POST',
+      body: new URLSearchParams(payload)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Zapier webhook responded with status ' + res.status);
+        console.log('[AM777] Lead sent successfully:', payload.email);
+      })
+      .catch(function (err) {
+        console.error('[AM777] Failed to send lead to Zapier:', err, payload);
+      });
   }
 })();
 </script>
