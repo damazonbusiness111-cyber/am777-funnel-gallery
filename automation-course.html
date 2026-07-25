@@ -1,0 +1,393 @@
+<!-- Design plan — reskinned to match the AM777 CRM concept's established theme this session
+Subject: AM777's lead magnet — a free 7-day drip course teaching AI/workflow automation (n8n/Zapier/Make),
+         onboarding form to capture a new student's goals so the drip content can be tailored.
+Color: same palette as the CRM concept — near-black navy bg #05070C, card surface #0E1730, blue accent #3B82F6/
+       #5B9CFF, white text #F5F8FF, hairline borders. One accent color, not competing hues.
+Type: monospace (ui-monospace/SF Mono) for headings/labels/eyebrows — same "HUD-adjacent" system used across the
+      CRM — sans-serif for supporting body copy, matching the CRM's own font-split rule.
+Layout: unchanged structure (hero + 3-step progressive form + step dots) — only the surface treatment changes.
+Submission: still the same honest pattern — a prefilled Gmail draft to Darwin, no fake "submitted" claim.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AM777 — Learn Automation, 7-Day Drip Course</title>
+<style>
+  :root{
+    --bg:#05070C; --card:#0E1730; --card-soft:#0B1226;
+    --blue:#3B82F6; --blue-bright:#5B9CFF;
+    --white:#F5F8FF; --ink-soft:#8A96BE; --ink-faint:#5B6690;
+    --hairline:rgba(91,156,255,.22); --hairline-soft:rgba(255,255,255,.07);
+    --good:#34D399; --good-bg:rgba(52,211,153,.12);
+    --bad:#F87171; --bad-bg:rgba(248,113,113,.12);
+    --ease: cubic-bezier(.3,1.1,.4,1);
+    --glow: 0 0 0 1px rgba(59,130,246,.3), 0 10px 28px -12px rgba(59,130,246,.4);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--white);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{ position:relative; z-index:1; }
+  .sans{ font-family:-apple-system,"SF Pro Text","Segoe UI",Inter,sans-serif; }
+  a{ color:inherit; }
+  button{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--blue-bright); outline-offset:2px; border-radius:6px; }
+
+  .page{ max-width:920px; margin:0 auto; padding:56px 24px 90px; }
+
+  .brand{ display:flex; align-items:center; gap:10px; margin-bottom:48px; }
+  .brand svg{ width:32px; height:32px; }
+  .brand b{ font-size:14.5px; font-weight:800; letter-spacing:.01em; }
+  .brand b span{ color:var(--blue-bright); }
+  .brand small{ display:block; font-size:9.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.12em; font-weight:650; font-family:-apple-system,sans-serif; }
+
+  .hero{ text-align:center; margin-bottom:52px; }
+  .hero .eyebrow{ display:inline-flex; align-items:center; gap:7px; background:var(--good-bg); color:var(--good); font-size:12px; font-weight:700; padding:6px 14px; border-radius:999px; margin-bottom:20px; }
+  .hero h1{ font-size:clamp(30px,5vw,42px); font-weight:800; letter-spacing:-.015em; line-height:1.12; margin:0 0 16px; text-wrap:balance; font-family:-apple-system,sans-serif; }
+  .hero h1 em{ font-style:normal; color:var(--blue-bright); }
+  .hero p.sans{ font-size:15.5px; color:var(--ink-soft); max-width:520px; margin:0 auto; line-height:1.6; }
+
+  .proof-row{ display:flex; justify-content:center; gap:28px; margin-top:28px; flex-wrap:wrap; }
+  .proof{ text-align:center; }
+  .proof b{ display:block; font-size:22px; font-weight:800; color:var(--white); }
+  .proof span{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.06em; font-family:-apple-system,sans-serif; }
+
+  .form-card{
+    background:var(--card); border:1px solid var(--hairline-soft); border-radius:24px; padding:8px; position:relative;
+    box-shadow:0 24px 60px -30px rgba(0,0,0,.6); max-width:600px; margin:0 auto;
+  }
+  .form-inner{ padding:36px 34px 30px; }
+
+  .steps{ display:flex; align-items:center; gap:8px; margin-bottom:30px; }
+  .step-dot{ flex:1; height:4px; border-radius:999px; background:var(--hairline-soft); transition: background .4s var(--ease); }
+  .step-dot.done, .step-dot.active{ background:var(--blue); }
+  .step-label{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--blue-bright); margin-bottom:6px; }
+  .step-title{ font-size:20px; font-weight:750; margin:0 0 4px; letter-spacing:-.01em; font-family:-apple-system,sans-serif; }
+  .step-sub{ font-size:13px; color:var(--ink-soft); margin:0 0 26px; }
+
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:12.5px; font-weight:650; color:var(--ink-soft); margin-bottom:7px; font-family:-apple-system,sans-serif; }
+  .field input[type="text"], .field input[type="email"]{
+    width:100%; padding:12px 14px; background:var(--card-soft); border:1px solid var(--hairline-soft); border-radius:11px; font-size:14px;
+    color:var(--white); font-family:-apple-system,sans-serif; transition:border-color .2s, box-shadow .2s;
+  }
+  .field input:focus{ outline:none; border-color:var(--hairline); box-shadow:0 0 0 3px rgba(59,130,246,.12); }
+  .field .err{ color:var(--bad); font-size:11.5px; margin-top:5px; display:none; font-family:-apple-system,sans-serif; }
+  .field.invalid input{ border-color:var(--bad); }
+  .field.invalid .err{ display:block; }
+
+  .choice-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .choice{
+    display:flex; align-items:center; gap:12px; border:1.5px solid var(--hairline-soft); border-radius:13px; padding:14px 16px;
+    cursor:pointer; transition: all .2s var(--ease); position:relative; background:var(--card-soft);
+  }
+  .choice:hover{ border-color:var(--hairline); }
+  .choice input{ position:absolute; opacity:0; }
+  .choice .radio{ width:18px; height:18px; border-radius:50%; border:2px solid var(--hairline-soft); flex:none; position:relative; transition: border-color .2s; }
+  .choice .radio::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--blue); transform:scale(0); transition: transform .2s var(--ease); }
+  .choice input:checked ~ .radio{ border-color:var(--blue); }
+  .choice input:checked ~ .radio::after{ transform:scale(1); }
+  .choice.on{ border-color:var(--blue); box-shadow:var(--glow); }
+  .choice b{ font-size:13.5px; font-weight:650; display:block; font-family:-apple-system,sans-serif; }
+  .choice span{ font-size:11.5px; color:var(--ink-soft); font-family:-apple-system,sans-serif; }
+
+  .chip-grid{ display:flex; flex-wrap:wrap; gap:9px; }
+  .chip{
+    border:1.5px solid var(--hairline-soft); border-radius:999px; padding:9px 16px; font-size:12.5px; font-weight:650;
+    cursor:pointer; transition: all .2s var(--ease); color:var(--ink-soft); background:var(--card-soft); font-family:-apple-system,sans-serif;
+  }
+  .chip:hover{ border-color:var(--hairline); }
+  .chip.on{ background:var(--blue); border-color:var(--blue); color:#fff; }
+
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:28px; gap:12px; }
+  .btn{ border:none; border-radius:11px; padding:12px 22px; font-size:13px; font-weight:700; cursor:pointer; transition: transform .2s var(--ease), box-shadow .2s; font-family:-apple-system,sans-serif; text-transform:uppercase; letter-spacing:.03em; }
+  .btn-primary{ background:linear-gradient(135deg,var(--blue),#2563EB); color:#fff; box-shadow:0 10px 24px -10px rgba(59,130,246,.7); }
+  .btn-primary:hover{ transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+  .btn-ghost{ background:none; color:var(--ink-soft); }
+  .btn-ghost:hover{ color:var(--white); }
+
+  .panel{ display:none; animation: rise .45s var(--ease); }
+  .panel.active{ display:block; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
+  .panel.active .field, .panel.active .choice, .panel.active .chip{ opacity:0; animation: fieldIn .5s var(--ease) forwards; }
+  .panel.active .field:nth-child(1), .panel.active .choice:nth-child(1), .panel.active .chip:nth-child(1){ animation-delay:.05s; }
+  .panel.active .field:nth-child(2), .panel.active .choice:nth-child(2), .panel.active .chip:nth-child(2){ animation-delay:.11s; }
+  .panel.active .field:nth-child(3), .panel.active .choice:nth-child(3), .panel.active .chip:nth-child(3){ animation-delay:.17s; }
+  .panel.active .choice:nth-child(4), .panel.active .chip:nth-child(4){ animation-delay:.23s; }
+  .panel.active .chip:nth-child(5){ animation-delay:.29s; }
+  .panel.active .chip:nth-child(6){ animation-delay:.35s; }
+  @keyframes fieldIn{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
+
+  .btn:active{ transform:scale(.96); }
+  .choice, .chip{ transform:scale(1); }
+  .choice.pop, .chip.pop{ animation: pop .35s var(--ease); }
+  @keyframes pop{ 0%{ transform:scale(1);} 40%{ transform:scale(1.04);} 100%{ transform:scale(1);} }
+
+  .field-ok{ position:absolute; right:14px; top:38px; color:var(--good); opacity:0; transition:opacity .2s; pointer-events:none; }
+  .field{ position:relative; }
+  .field.valid .field-ok{ opacity:1; }
+  .field.valid input{ border-color:var(--good); padding-right:38px; }
+
+  .step-progress{ font-size:10.5px; color:var(--ink-faint); text-align:right; margin-top:-24px; margin-bottom:20px; font-family:-apple-system,sans-serif; }
+
+  .success{ text-align:center; padding:20px 6px 10px; position:relative; }
+  .success .check{
+    width:56px; height:56px; border-radius:50%; background:var(--good-bg); color:var(--good);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+  }
+  .success h2{ font-size:21px; font-weight:750; margin:0 0 8px; font-family:-apple-system,sans-serif; }
+  .success p{ font-size:13px; color:var(--ink-soft); line-height:1.6; max-width:380px; margin:0 auto 20px; font-family:-apple-system,sans-serif; }
+  .success .btn-primary{ display:inline-flex; align-items:center; gap:8px; }
+
+  .trust{ text-align:center; margin-top:26px; font-size:11.5px; color:var(--ink-faint); font-family:-apple-system,sans-serif; }
+
+  @media (max-width:640px){
+    .page{ padding:36px 16px 70px; }
+    .form-inner{ padding:26px 18px 22px; }
+    .proof-row{ gap:20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="brand">
+    <svg viewBox="0 0 44 44" fill="none">
+      <path d="M9 34L22 8L35 34M14.5 23.5H29.5" stroke="#F5F8FF" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M15 34L19.5 25L24 31L28.5 25L33 34H15Z" fill="#3B82F6"/>
+    </svg>
+    <div><b>AM<span>777</span></b><small>Automation Solutions</small></div>
+  </div>
+
+  <div class="hero">
+    <span class="eyebrow sans">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>
+      Free — delivered over 7 days
+    </span>
+    <h1>Learn to build real <em>automation</em>, one short lesson a day.</h1>
+    <p class="sans">A 7-day email course on n8n, Zapier, and AI-assisted workflows — built from the same systems AM777 ships for paying clients. Tell us where you're starting and we'll tailor it.</p>
+    <div class="proof-row">
+      <div class="proof"><b>7</b><span>Short lessons</span></div>
+      <div class="proof"><b>15 min</b><span>Per day</span></div>
+      <div class="proof"><b>0₱</b><span>Cost</span></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-inner">
+      <div class="steps">
+        <div class="step-dot active" data-dot="1"></div>
+        <div class="step-dot" data-dot="2"></div>
+        <div class="step-dot" data-dot="3"></div>
+      </div>
+      <div class="step-progress" id="stepProgress">33% complete</div>
+
+      <form id="onboardForm">
+        <div class="panel active" data-panel="1">
+          <div class="step-label">Step 1 of 3</div>
+          <h2 class="step-title">Where should we send it?</h2>
+          <p class="step-sub sans">Just your name and email — lesson one lands the day you sign up.</p>
+          <div class="field" id="fName">
+            <label for="inpName">Full name</label>
+            <input type="text" id="inpName" placeholder="Alecs Mazon" autocomplete="name" />
+            <span class="field-ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+            <div class="err">Enter your name so we know who's learning.</div>
+          </div>
+          <div class="field" id="fEmail">
+            <label for="inpEmail">Email address</label>
+            <input type="email" id="inpEmail" placeholder="you@business.com" autocomplete="email" />
+            <span class="field-ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+            <div class="err">Enter a valid email — this is where the course arrives.</div>
+          </div>
+          <div class="nav-row">
+            <span></span>
+            <button type="button" class="btn btn-primary" data-next="2">Continue →</button>
+          </div>
+        </div>
+
+        <div class="panel" data-panel="2">
+          <div class="step-label">Step 2 of 3</div>
+          <h2 class="step-title" id="step2Title">Where are you starting from?</h2>
+          <p class="step-sub sans">This decides how technical day one gets — no wrong answer.</p>
+          <div class="choice-grid" id="skillChoices">
+            <label class="choice"><input type="radio" name="skill" value="Brand new"/><span class="radio"></span><span><b>Brand new</b><span>Never built an automation before</span></span></label>
+            <label class="choice"><input type="radio" name="skill" value="Some experience"/><span class="radio"></span><span><b>Some experience</b><span>Used Zapier/Make a little, want to go deeper</span></span></label>
+            <label class="choice"><input type="radio" name="skill" value="Comfortable"/><span class="radio"></span><span><b>Comfortable</b><span>Built workflows before, want n8n + AI specifically</span></span></label>
+          </div>
+          <div class="nav-row">
+            <button type="button" class="btn btn-ghost" data-back="1">← Back</button>
+            <button type="button" class="btn btn-primary" data-next="3" id="toStep3" disabled>Continue →</button>
+          </div>
+        </div>
+
+        <div class="panel" data-panel="3">
+          <div class="step-label">Step 3 of 3</div>
+          <h2 class="step-title">Last thing — what do you want to automate?</h2>
+          <p class="step-sub sans">Pick as many as apply — we'll lean the lessons toward these.</p>
+          <div class="chip-grid" id="goalChips">
+            <button type="button" class="chip">Lead follow-up</button>
+            <button type="button" class="chip">CRM &amp; pipelines</button>
+            <button type="button" class="chip">Email / outreach</button>
+            <button type="button" class="chip">Client onboarding</button>
+            <button type="button" class="chip">Reporting &amp; dashboards</button>
+            <button type="button" class="chip">AI document processing</button>
+          </div>
+          <div class="nav-row">
+            <button type="button" class="btn btn-ghost" data-back="2">← Back</button>
+            <button type="button" class="btn btn-primary" id="submitBtn">Start the course →</button>
+          </div>
+        </div>
+
+        <div class="panel" data-panel="done">
+          <div class="success">
+            <div class="check"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></div>
+            <h2 id="successTitle">You're almost in</h2>
+            <p id="successMsg">Click below to send it — this opens a real email to AM777 with your answers, so day one can actually go out.</p>
+            <button type="button" class="btn btn-primary" id="openEnrollEmail">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              Send enrollment email
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <p class="trust">No spam, unsubscribe anytime. Built by AM777 Automation Solutions.</p>
+</div>
+
+<script>
+(function(){
+  var state = { name:"", email:"", skill:"", goals:[] };
+
+  function showPanel(n){
+    document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("active"); });
+    var target = document.querySelector('.panel[data-panel="'+n+'"]');
+    if(target) target.classList.add("active");
+    document.querySelectorAll(".step-dot").forEach(function(d){
+      var i = parseInt(d.getAttribute("data-dot"), 10);
+      d.classList.toggle("active", i === n);
+      d.classList.toggle("done", i < n);
+    });
+    var progress = document.getElementById("stepProgress");
+    if(typeof n === "number"){ progress.textContent = Math.round(n/3*100) + "% complete"; progress.style.display = ""; }
+    else{ progress.style.display = "none"; }
+  }
+
+  function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  // Live validation feedback as you type
+  document.getElementById("inpName").addEventListener("input", function(){
+    document.getElementById("fName").classList.toggle("valid", this.value.trim().length > 1);
+  });
+  document.getElementById("inpEmail").addEventListener("input", function(){
+    document.getElementById("fEmail").classList.toggle("valid", validEmail(this.value.trim()));
+  });
+
+  document.querySelectorAll("[data-next]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var next = this.getAttribute("data-next");
+      if(next === "2"){
+        var name = document.getElementById("inpName").value.trim();
+        var email = document.getElementById("inpEmail").value.trim();
+        var nameField = document.getElementById("fName"), emailField = document.getElementById("fEmail");
+        nameField.classList.toggle("invalid", !name);
+        emailField.classList.toggle("invalid", !validEmail(email));
+        if(!name || !validEmail(email)) return;
+        state.name = name; state.email = email;
+        var first = name.split(" ")[0];
+        document.getElementById("step2Title").textContent = "Nice to meet you, " + first + " — where are you starting from?";
+      }
+      showPanel(parseInt(next, 10));
+    });
+  });
+  document.querySelectorAll("[data-back]").forEach(function(btn){
+    btn.addEventListener("click", function(){ showPanel(parseInt(this.getAttribute("data-back"), 10)); });
+  });
+
+  function pop(el){
+    el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+  }
+
+  document.getElementById("skillChoices").addEventListener("change", function(e){
+    if(e.target.name === "skill"){
+      state.skill = e.target.value;
+      document.querySelectorAll("#skillChoices .choice").forEach(function(c){
+        var isOn = c.querySelector("input").checked;
+        c.classList.toggle("on", isOn);
+        if(isOn) pop(c);
+      });
+      document.getElementById("toStep3").disabled = false;
+    }
+  });
+
+  document.getElementById("goalChips").addEventListener("click", function(e){
+    var chip = e.target.closest(".chip");
+    if(!chip) return;
+    chip.classList.toggle("on");
+    if(chip.classList.contains("on")) pop(chip);
+    var label = chip.textContent.trim();
+    if(chip.classList.contains("on")){ state.goals.push(label); }
+    else{ state.goals = state.goals.filter(function(g){ return g !== label; }); }
+  });
+
+  function burstConfetti(){
+    if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var host = document.querySelector('.panel[data-panel="done"] .success');
+    var colors = ["#3B82F6","#5B9CFF","#34D399","#FBBF24"];
+    for(var i = 0; i < 18; i++){
+      var p = document.createElement("span");
+      var angle = (Math.random() * 360) * Math.PI / 180;
+      var dist = 60 + Math.random() * 70;
+      p.style.cssText = "position:absolute; left:50%; top:44px; width:6px; height:6px; border-radius:2px; pointer-events:none;" +
+        "background:" + colors[i % colors.length] + "; opacity:1;" +
+        "transform:translate(-50%,-50%); transition: transform .8s cubic-bezier(.2,.8,.3,1), opacity .8s ease;";
+      host.appendChild(p);
+      requestAnimationFrame(function(el, dx, dy){
+        return function(){
+          el.style.transform = "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px)) rotate(" + (Math.random()*360) + "deg)";
+          el.style.opacity = "0";
+        };
+      }(p, Math.cos(angle)*dist, Math.sin(angle)*dist - 20));
+      setTimeout(function(el){ return function(){ el.remove(); }; }(p), 850);
+    }
+  }
+
+  document.getElementById("submitBtn").addEventListener("click", function(){
+    showPanel("done");
+    var goalsText = state.goals.length ? state.goals.join(", ") : "Not specified";
+    var first = state.name.split(" ")[0] || "there";
+    document.getElementById("successTitle").textContent = "Welcome aboard, " + first + "!";
+    document.getElementById("successMsg").textContent =
+      "One click and lesson one is on its way — tailored around " + (state.skill || "where you're at") + " and " + goalsText.toLowerCase() + ". Glad you're here.";
+    var check = document.querySelector(".success .check");
+    check.style.transform = "scale(0)";
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        check.style.transition = "transform .5s cubic-bezier(.34,1.56,.64,1)";
+        check.style.transform = "scale(1)";
+      });
+    });
+    setTimeout(burstConfetti, 150);
+  });
+
+  document.getElementById("openEnrollEmail").addEventListener("click", function(){
+    var goalsText = state.goals.length ? state.goals.join(", ") : "Not specified";
+    var subject = "Automation Drip Course — enrollment: " + state.name;
+    var body = "New enrollment for the 7-day automation drip course.\n\n" +
+      "Name: " + state.name + "\n" +
+      "Email: " + state.email + "\n" +
+      "Skill level: " + state.skill + "\n" +
+      "Wants to automate: " + goalsText + "\n";
+    var url = "https://mail.google.com/mail/?view=cm&fs=1&to=damazonbusiness111@gmail.com" +
+      "&su=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    window.open(url, "_blank", "noopener");
+  });
+})();
+</script>
+</body>
+</html>
