@@ -112,6 +112,7 @@ type CtaButtonProps = {
   reduced: boolean;
   type: "button" | "submit";
   onClick?: () => void;
+  disabled?: boolean;
   "aria-label"?: string;
 };
 
@@ -226,6 +227,7 @@ const labelClass = "mb-1 block font-mono text-[10px] uppercase tracking-[0.1em] 
 export default function InfraMindEnrollment() {
   const [stage, setStage] = useState<Stage>("loading");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
   const reduced = Boolean(useReducedMotion());
 
   const heading =
@@ -242,8 +244,26 @@ export default function InfraMindEnrollment() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(evt: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(evt: FormEvent<HTMLFormElement>) {
     evt.preventDefault();
+    const endpoint = process.env.NEXT_PUBLIC_INFRAMIND_FORM_ENDPOINT;
+
+    if (endpoint) {
+      setSubmitting(true);
+      try {
+        await fetch(endpoint, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ ...form, secret: process.env.NEXT_PUBLIC_INFRAMIND_FORM_SECRET }),
+        });
+      } catch {
+        // no-cors gives no readable response either way; submission is best-effort.
+      } finally {
+        setSubmitting(false);
+      }
+    }
+
     setStage("success");
   }
 
@@ -467,8 +487,13 @@ export default function InfraMindEnrollment() {
                         Back
                       </motion.button>
                     </Magnetic>
-                    <CtaButton type="submit" reduced={reduced} aria-label="Submit my free enrollment">
-                      Submit My Free Enrollment
+                    <CtaButton
+                      type="submit"
+                      reduced={reduced}
+                      disabled={submitting}
+                      aria-label="Submit my free enrollment"
+                    >
+                      {submitting ? "Submitting…" : "Submit My Free Enrollment"}
                     </CtaButton>
                   </motion.div>
                 </motion.form>
