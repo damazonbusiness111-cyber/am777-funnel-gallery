@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import Link from "next/link";
+import { motion, useReducedMotion, useSpring } from "framer-motion";
 
 type CrtIntroProps = {
   eyebrow?: string;
@@ -11,6 +13,31 @@ type CrtIntroProps = {
 };
 
 const SCRAMBLE = "!<>-_\\/[]{}—=+*^?#0123456789";
+const springPop = { type: "spring" as const, stiffness: 420, damping: 22 };
+
+/** A link that leans slightly toward the pointer within its bounds ("magnetic" hover). */
+function Magnetic({ children, reduced }: { children: React.ReactNode; reduced: boolean }) {
+  const x = useSpring(0, { stiffness: 300, damping: 20 });
+  const y = useSpring(0, { stiffness: 300, damping: 20 });
+
+  function onPointerMove(evt: ReactPointerEvent<HTMLDivElement>) {
+    if (reduced) return;
+    const rect = evt.currentTarget.getBoundingClientRect();
+    x.set(((evt.clientX - rect.left) / rect.width - 0.5) * 10);
+    y.set(((evt.clientY - rect.top) / rect.height - 0.5) * 10);
+  }
+
+  function onPointerLeave() {
+    x.set(0);
+    y.set(0);
+  }
+
+  return (
+    <motion.div style={{ x, y }} onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
+      {children}
+    </motion.div>
+  );
+}
 
 function useDecodeIn(text: string, active: boolean) {
   const [display, setDisplay] = useState(text);
@@ -104,6 +131,25 @@ export default function CrtIntro({
             >
               {tagline}
             </motion.p>
+
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="mt-8 flex justify-center"
+            >
+              <Magnetic reduced={reduced}>
+                <Link href="/enroll" className="inline-block" aria-label="Continue to the free enrollment form">
+                  <motion.span
+                    whileHover={reduced ? undefined : { y: -1, boxShadow: "0 10px 24px -8px var(--color-gold)" }}
+                    whileTap={reduced ? undefined : { scale: 0.94 }}
+                    transition={springPop}
+                    className="inline-block rounded-full bg-gold px-6 py-3 font-mono text-xs uppercase tracking-[0.08em] text-midnight"
+                  >
+                    Continue
+                  </motion.span>
+                </Link>
+              </Magnetic>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
