@@ -9,7 +9,7 @@ const silkscreen = Silkscreen({
 });
 
 export const metadata: Metadata = {
-  title: "CRT Theme — Dev Environment",
+  title: "Free Enrollment — AI Education Course",
 };
 
 export default function RootLayout({

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import InfraMindEnrollment from "@/components/InfraMindEnrollment";
 import HeroCta from "@/components/HeroCta";
 
@@ -8,13 +7,6 @@ export default function EnrollPage() {
       <section
         className="mx-auto flex max-w-xl flex-col items-center gap-4 px-5 pt-16 text-center font-mono sm:px-8"
       >
-        <Image
-          src="/am-mark.png"
-          alt="A'M"
-          width={28}
-          height={28}
-          className="rounded-full opacity-90"
-        />
         <p className="text-[11px] uppercase tracking-[0.35em] text-gold-hi/70">
           Free AI Starter Program
         </p>
@@ -32,7 +24,6 @@ export default function EnrollPage() {
         <InfraMindEnrollment />
       </div>
       <footer className="flex items-center justify-center gap-2 pb-10 opacity-60">
-        <Image src="/am777-mark.svg" alt="AM777" width={18} height={18} className="rounded" />
         <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-parchment/50">
           An AM777 ecosystem product
         </span>
