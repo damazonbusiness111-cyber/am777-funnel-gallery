@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, useReducedMotion, useSpring } from "framer-motion";
 
 type CrtIntroProps = {
@@ -76,14 +76,32 @@ export default function CrtIntro({
 }: CrtIntroProps) {
   const reduced = Boolean(useReducedMotion());
   const decodedMark = useDecodeIn(mark, !reduced);
+  const router = useRouter();
+  const [leaving, setLeaving] = useState(false);
+
+  function goToEnroll() {
+    if (leaving) return;
+    if (reduced) {
+      router.push("/enroll");
+      return;
+    }
+    setLeaving(true);
+  }
 
   return (
     <section aria-label="Campaign intro" className="relative bg-midnight py-14 sm:py-20">
       <div className="mx-auto w-full max-w-3xl px-5 sm:px-8">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 10, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          animate={
+            leaving
+              ? { opacity: 0, y: -10, scale: 0.97, filter: "blur(4px)" }
+              : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }
+          }
+          transition={{ duration: leaving ? 0.35 : 0.6, ease: [0.22, 1, 0.36, 1] }}
+          onAnimationComplete={() => {
+            if (leaving) router.push("/enroll");
+          }}
           className="crt-screen relative mx-auto overflow-hidden rounded-[2rem] border border-gold/20 px-6 py-14 text-center sm:px-12 sm:py-20"
         >
           <div className="crt-vignette" aria-hidden="true" />
@@ -138,16 +156,18 @@ export default function CrtIntro({
               className="mt-8 flex justify-center"
             >
               <Magnetic reduced={reduced}>
-                <Link href="/enroll" className="inline-block" aria-label="Continue to the free enrollment form">
-                  <motion.span
-                    whileHover={reduced ? undefined : { y: -1, boxShadow: "0 10px 24px -8px var(--color-gold)" }}
-                    whileTap={reduced ? undefined : { scale: 0.94 }}
-                    transition={springPop}
-                    className="inline-block rounded-full bg-gold px-6 py-3 font-mono text-xs uppercase tracking-[0.08em] text-midnight"
-                  >
-                    Continue
-                  </motion.span>
-                </Link>
+                <motion.button
+                  type="button"
+                  onClick={goToEnroll}
+                  disabled={leaving}
+                  aria-label="Continue to the free enrollment form"
+                  whileHover={reduced ? undefined : { y: -1, boxShadow: "0 10px 24px -8px var(--color-gold)" }}
+                  whileTap={reduced ? undefined : { scale: 0.94 }}
+                  transition={springPop}
+                  className="inline-block rounded-full bg-gold px-6 py-3 font-mono text-xs uppercase tracking-[0.08em] text-midnight disabled:opacity-60"
+                >
+                  Continue
+                </motion.button>
               </Magnetic>
             </motion.div>
           </motion.div>
