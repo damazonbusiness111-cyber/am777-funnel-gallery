@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion, useSpring } from "framer-motion";
+import { START_ENROLLMENT_EVENT } from "@/lib/enrollmentEvents";
 
 type Stage = "loading" | "welcome" | "application" | "signature" | "success";
 
@@ -187,7 +188,24 @@ function StepTabs({ stage, onJump }: { stage: Stage; onJump: (s: Stage) => void 
 
 function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boolean }) {
   const [ready, setReady] = useState(reduced);
+  const [stalled, setStalled] = useState(false);
   const status = useDecodeIn(ready ? "Access granted" : "Verifying eligibility", !reduced);
+
+  // Deterministic timers drive the state transition — the progress bar's own
+  // width animation is purely cosmetic. Relying on Framer Motion's
+  // onAnimationComplete here previously left visitors stuck on "Verifying
+  // eligibility" forever in production (the callback did not reliably fire),
+  // so this state is never allowed to hang: it resolves on its own, and a
+  // hard fallback surfaces a manual way forward if it somehow doesn't.
+  useEffect(() => {
+    if (reduced) return;
+    const resolve = setTimeout(() => setReady(true), 1400);
+    const fallback = setTimeout(() => setStalled(true), 2000);
+    return () => {
+      clearTimeout(resolve);
+      clearTimeout(fallback);
+    };
+  }, [reduced]);
 
   return (
     <div>
@@ -202,9 +220,21 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
           initial={{ width: "0%" }}
           animate={{ width: "100%" }}
           transition={reduced ? { duration: 0 } : { duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-          onAnimationComplete={() => setReady(true)}
         />
       </div>
+
+      {stalled && !ready && (
+        <div className="mt-5">
+          <p className="mx-auto max-w-xs font-mono text-[11px] leading-relaxed text-parchment/55">
+            We couldn&apos;t finish the automatic check. You can still continue with your application.
+          </p>
+          <div className="mt-3 flex justify-center">
+            <CtaButton type="button" reduced={reduced} onClick={onEnter} aria-label="Continue to the enrollment form">
+              Continue Anyway
+            </CtaButton>
+          </div>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {ready && (
@@ -263,6 +293,22 @@ export default function InfraMindEnrollment() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const reduced = Boolean(useReducedMotion());
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // The hero CTA's promise is to start the application, not to scroll to an
+  // inert section — jump straight past the loading/welcome theater into the
+  // real form when it's clicked.
+  useEffect(() => {
+    function handleStart() {
+      setStage("application");
+    }
+    window.addEventListener(START_ENROLLMENT_EVENT, handleStart);
+    return () => window.removeEventListener(START_ENROLLMENT_EVENT, handleStart);
+  }, []);
+
+  useEffect(() => {
+    if (stage === "application") nameInputRef.current?.focus();
+  }, [stage]);
 
   const heading =
     stage === "welcome"
@@ -424,6 +470,7 @@ export default function InfraMindEnrollment() {
                     </label>
                     <input
                       id="name"
+                      ref={nameInputRef}
                       type="text"
                       required
                       value={form.name}

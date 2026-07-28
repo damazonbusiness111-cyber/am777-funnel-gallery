@@ -1,5 +1,8 @@
+"use client";
+
 import InfraMindEnrollment from "@/components/InfraMindEnrollment";
 import HeroCta from "@/components/HeroCta";
+import { dispatchStartEnrollment } from "@/lib/enrollmentEvents";
 
 export default function EnrollPage() {
   return (
@@ -17,7 +20,9 @@ export default function EnrollPage() {
           Free Founding Batch enrollment is open to applicants ready to build with AI.
         </p>
         <div className="mt-2">
-          <HeroCta href="#enroll">Apply for My Free AI Starter Slot</HeroCta>
+          <HeroCta href="#enroll" onClick={dispatchStartEnrollment}>
+            Apply for My Free AI Starter Slot
+          </HeroCta>
         </div>
       </section>
       <div id="enroll">

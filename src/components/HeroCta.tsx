@@ -2,11 +2,20 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 
-export default function HeroCta({ href, children }: { href: string; children: React.ReactNode }) {
+export default function HeroCta({
+  href,
+  children,
+  onClick,
+}: {
+  href: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
   const reduced = Boolean(useReducedMotion());
   return (
     <motion.a
       href={href}
+      onClick={onClick}
       whileHover={reduced ? undefined : { y: -1 }}
       whileTap={reduced ? undefined : { scale: 0.96 }}
       transition={{ duration: 0.15, ease: "easeOut" }}
