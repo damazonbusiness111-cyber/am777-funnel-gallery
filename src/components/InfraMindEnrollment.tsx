@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion, useSpring } from "framer-motion";
 
-type Stage = "loading" | "welcome" | "application" | "success";
+type Stage = "loading" | "welcome" | "application" | "signature" | "success";
 
 type FormState = {
   name: string;
@@ -13,6 +13,8 @@ type FormState = {
   learningStyle: string;
   goals: string;
   direction: string;
+  signature: string;
+  agreed: boolean;
 };
 
 const EMPTY_FORM: FormState = {
@@ -22,11 +24,25 @@ const EMPTY_FORM: FormState = {
   learningStyle: "",
   goals: "",
   direction: "",
+  signature: "",
+  agreed: false,
 };
 
 const PROGRAM_NAME = "InfraMind777 Free AI Starter Program — Founding Batch";
 const SCRAMBLE = "!<>-_\\/[]{}—=+*^?#0123456789";
-const STEP_INDEX: Record<Stage, number> = { loading: -1, welcome: 0, application: 1, success: 2 };
+const STEP_TABS: { stage: Stage; label: string }[] = [
+  { stage: "welcome", label: "Welcome" },
+  { stage: "application", label: "Apply" },
+  { stage: "signature", label: "Sign" },
+  { stage: "success", label: "Done" },
+];
+const STEP_INDEX: Record<Stage, number> = {
+  loading: -1,
+  welcome: 0,
+  application: 1,
+  signature: 2,
+  success: 3,
+};
 
 function useDecodeIn(text: string, active: boolean) {
   const [display, setDisplay] = useState(text);
@@ -58,9 +74,9 @@ function useDecodeIn(text: string, active: boolean) {
 }
 
 const stageVariants = {
-  initial: { opacity: 0, y: 14, filter: "blur(2px)" },
-  animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -10, filter: "blur(2px)" },
+  initial: { opacity: 0, x: 18, filter: "blur(3px)" },
+  animate: { opacity: 1, x: 0, filter: "blur(0px)" },
+  exit: { opacity: 0, x: -18, filter: "blur(3px)" },
 };
 
 const fieldContainer = {
@@ -73,6 +89,7 @@ const fieldItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: "easeOut" as const } },
 };
 
+const premiumEase = [0.16, 1, 0.3, 1] as const;
 const springPop = { type: "spring" as const, stiffness: 420, damping: 22 };
 
 /** A button that leans slightly toward the pointer within its bounds ("magnetic" hover). */
@@ -124,7 +141,7 @@ function CtaButton({ children, reduced, ...props }: CtaButtonProps) {
         whileHover={reduced ? undefined : { y: -1, boxShadow: "0 10px 24px -8px var(--color-gold)" }}
         whileTap={reduced ? undefined : { scale: 0.94 }}
         transition={springPop}
-        className="rounded-full bg-gold px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-hi disabled:opacity-50"
+        className="rounded-full bg-gold px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-hi disabled:cursor-not-allowed disabled:opacity-50"
       >
         {children}
       </motion.button>
@@ -132,21 +149,38 @@ function CtaButton({ children, reduced, ...props }: CtaButtonProps) {
   );
 }
 
-function ProgressDots({ stage }: { stage: Stage }) {
+/** Tab-style step switcher. Clicking a completed step jumps back to it. */
+function StepTabs({ stage, onJump }: { stage: Stage; onJump: (s: Stage) => void }) {
   const active = STEP_INDEX[stage];
+  if (active < 0) return null;
+
   return (
-    <div className="mt-5 flex justify-center gap-1.5" aria-hidden="true">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="relative h-[2px] w-5 overflow-hidden rounded-full bg-gold/[0.14]">
-          {i <= active && (
-            <motion.div
-              layoutId={i === active ? "progress-active" : undefined}
-              className="absolute inset-0 rounded-full bg-gold"
-              transition={springPop}
-            />
-          )}
-        </div>
-      ))}
+    <div className="mt-5 flex justify-center gap-1 border-b border-gold/10">
+      {STEP_TABS.map(({ stage: s, label }) => {
+        const idx = STEP_INDEX[s];
+        const isActive = idx === active;
+        const isDone = idx < active;
+        const canJump = isDone && active < STEP_INDEX.success;
+        return (
+          <button
+            key={s}
+            type="button"
+            disabled={!canJump}
+            onClick={() => canJump && onJump(s)}
+            className="relative px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors disabled:cursor-default"
+            style={{ color: isActive ? "var(--color-gold-hi)" : isDone ? "var(--color-gold)" : "rgba(216, 190, 122, 0.35)" }}
+          >
+            {label}
+            {isActive && (
+              <motion.div
+                layoutId="step-tab-underline"
+                className="absolute inset-x-1 -bottom-px h-[2px] rounded-full bg-gold-hi"
+                transition={{ type: "spring", stiffness: 500, damping: 34 }}
+              />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -181,7 +215,7 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
             transition={springPop}
           >
             <motion.p
-              className="mt-6 text-2xl font-bold leading-snug tracking-[0.01em] text-ivory sm:text-3xl"
+              className="mt-6 text-2xl font-bold leading-snug tracking-[0.01em] text-gold-hi sm:text-3xl"
               style={{ textShadow: "0 0 5px rgba(216, 190, 122, 0.4), 0 0 16px rgba(184, 138, 59, 0.22)" }}
               animate={
                 reduced
@@ -221,7 +255,7 @@ function Field({ children }: { children: React.ReactNode }) {
 }
 
 const fieldClass =
-  "w-full rounded-lg border border-gold/20 bg-midnight/60 px-3 py-2 font-mono text-[13px] text-parchment placeholder:text-parchment/35 outline-none transition-[border-color,box-shadow] duration-200 focus-visible:border-gold focus-visible:shadow-[0_0_0_3px_rgba(184,138,59,0.15)]";
+  "w-full rounded-lg border border-gold/20 bg-midnight/60 px-3 py-2 font-mono text-[13px] text-parchment placeholder:text-parchment/35 outline-none transition-[border-color,box-shadow,transform] duration-200 focus-visible:border-gold focus-visible:shadow-[0_0_0_3px_rgba(184,138,59,0.15)] focus-visible:scale-[1.01]";
 const labelClass = "mb-1 block font-mono text-[10px] uppercase tracking-[0.1em] text-gold-hi/80";
 
 export default function InfraMindEnrollment() {
@@ -235,16 +269,23 @@ export default function InfraMindEnrollment() {
       ? PROGRAM_NAME
       : stage === "application"
         ? "Founding Batch Applicant"
-        : stage === "success"
-          ? "Your InfraMind777 Application Has Been Received"
-          : "";
+        : stage === "signature"
+          ? "Just One Last Step"
+          : stage === "success"
+            ? "Your InfraMind777 Application Has Been Received"
+            : "";
   const decodedHeading = useDecodeIn(heading, !reduced);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleSubmit(evt: FormEvent<HTMLFormElement>) {
+  function goToSignature(evt: FormEvent<HTMLFormElement>) {
+    evt.preventDefault();
+    setStage("signature");
+  }
+
+  async function handleSign(evt: FormEvent<HTMLFormElement>) {
     evt.preventDefault();
     const endpoint = process.env.NEXT_PUBLIC_INFRAMIND_FORM_ENDPOINT;
 
@@ -276,7 +317,7 @@ export default function InfraMindEnrollment() {
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 6, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.4, ease: premiumEase }}
           className="crt-screen relative overflow-hidden rounded-[2rem] border border-gold/20 px-5 py-8 text-center sm:px-7"
         >
           <div className="crt-vignette" aria-hidden="true" />
@@ -291,7 +332,7 @@ export default function InfraMindEnrollment() {
                 initial="initial"
                 animate="animate"
                 exit={reduced ? undefined : "exit"}
-                transition={{ duration: 0.26, ease: "easeOut" }}
+                transition={{ duration: 0.32, ease: premiumEase }}
               >
                 <LoadingGate reduced={reduced} onEnter={() => setStage("welcome")} />
               </motion.div>
@@ -304,14 +345,14 @@ export default function InfraMindEnrollment() {
                 initial="initial"
                 animate="animate"
                 exit={reduced ? undefined : "exit"}
-                transition={{ duration: 0.26, ease: "easeOut" }}
+                transition={{ duration: 0.32, ease: premiumEase }}
               >
                 <p
                   className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70"
                 >
                   Free AI Starter Program
                 </p>
-                <p className="mt-3 text-xl font-bold leading-snug tracking-[0.01em] sm:text-2xl text-ivory">
+                <p className="mt-3 text-xl font-bold leading-snug tracking-[0.01em] sm:text-2xl text-gold-hi">
                   {decodedHeading}
                   <motion.span
                     aria-hidden="true"
@@ -343,7 +384,7 @@ export default function InfraMindEnrollment() {
                     Start My Free Enrollment
                   </CtaButton>
                 </div>
-                <ProgressDots stage={stage} />
+                <StepTabs stage={stage} onJump={setStage} />
               </motion.div>
             )}
 
@@ -354,14 +395,14 @@ export default function InfraMindEnrollment() {
                 initial="initial"
                 animate="animate"
                 exit={reduced ? undefined : "exit"}
-                transition={{ duration: 0.26, ease: "easeOut" }}
+                transition={{ duration: 0.32, ease: premiumEase }}
               >
                 <p
                   className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70"
                 >
                   Free Program Application
                 </p>
-                <p className="mt-2 text-lg font-bold tracking-[0.01em] sm:text-xl text-ivory">
+                <p className="mt-2 text-lg font-bold tracking-[0.01em] sm:text-xl text-gold-hi">
                   {decodedHeading}
                 </p>
                 <p
@@ -374,7 +415,7 @@ export default function InfraMindEnrollment() {
                   variants={fieldContainer}
                   initial="hidden"
                   animate="show"
-                  onSubmit={handleSubmit}
+                  onSubmit={goToSignature}
                   className="mt-5 flex flex-col gap-3 text-left"
                 >
                   <Field>
@@ -487,17 +528,97 @@ export default function InfraMindEnrollment() {
                         Back
                       </motion.button>
                     </Magnetic>
+                    <CtaButton type="submit" reduced={reduced} aria-label="Continue to sign your application">
+                      Continue
+                    </CtaButton>
+                  </motion.div>
+                </motion.form>
+                <StepTabs stage={stage} onJump={setStage} />
+              </motion.div>
+            )}
+
+            {stage === "signature" && (
+              <motion.div
+                key="signature"
+                variants={stageVariants}
+                initial="initial"
+                animate="animate"
+                exit={reduced ? undefined : "exit"}
+                transition={{ duration: 0.32, ease: premiumEase }}
+              >
+                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70">
+                  Free Program Application
+                </p>
+                <p className="mt-2 text-lg font-bold tracking-[0.01em] sm:text-xl text-gold-hi">
+                  {decodedHeading}
+                </p>
+                <p className="mx-auto mt-2 max-w-xs font-mono text-[11px] leading-relaxed text-parchment/55">
+                  Nothing scary here — just pop your name below to confirm this application is really from you.
+                  That&apos;s it.
+                </p>
+
+                <motion.form
+                  variants={fieldContainer}
+                  initial="hidden"
+                  animate="show"
+                  onSubmit={handleSign}
+                  className="mt-5 flex flex-col gap-3 text-left"
+                >
+                  <Field>
+                    <label className={labelClass} htmlFor="signature">
+                      Type your name to sign
+                    </label>
+                    <input
+                      id="signature"
+                      type="text"
+                      required
+                      value={form.signature}
+                      onChange={(e) => update("signature", e.target.value)}
+                      placeholder={form.name || "Your full name"}
+                      style={{ fontStyle: "italic", fontSize: "16px" }}
+                      className={fieldClass}
+                    />
+                  </Field>
+
+                  <Field>
+                    <label className="flex cursor-pointer items-start gap-2.5 text-left">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={form.agreed}
+                        onChange={(e) => update("agreed", e.target.checked)}
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-[color:var(--color-gold)]"
+                      />
+                      <span className="font-mono text-[11px] leading-relaxed text-parchment/70">
+                        Yes, this is really me applying, and I&apos;d love a shot at a spot in the Founding Batch.
+                      </span>
+                    </label>
+                  </Field>
+
+                  <motion.div variants={fieldItem} className="mt-1 flex justify-center gap-2">
+                    <Magnetic reduced={reduced}>
+                      <motion.button
+                        type="button"
+                        onClick={() => setStage("application")}
+                        whileHover={reduced ? undefined : { y: -1 }}
+                        whileTap={reduced ? undefined : { scale: 0.94 }}
+                        transition={springPop}
+                        className="rounded-full border px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] border-gold text-gold-hi bg-transparent"
+                      >
+                        Back
+                      </motion.button>
+                    </Magnetic>
                     <CtaButton
                       type="submit"
                       reduced={reduced}
                       disabled={submitting}
-                      aria-label="Submit my free enrollment"
+                      aria-label="Sign and submit my free enrollment"
                     >
-                      {submitting ? "Submitting…" : "Submit My Free Enrollment"}
+                      {submitting ? "Sending…" : "Sign & Submit"}
                     </CtaButton>
                   </motion.div>
                 </motion.form>
-                <ProgressDots stage={stage} />
+                <StepTabs stage={stage} onJump={setStage} />
               </motion.div>
             )}
 
@@ -508,7 +629,7 @@ export default function InfraMindEnrollment() {
                 initial="initial"
                 animate="animate"
                 exit={reduced ? undefined : "exit"}
-                transition={{ duration: 0.26, ease: "easeOut" }}
+                transition={{ duration: 0.32, ease: premiumEase }}
                 role="status"
               >
                 <motion.div
@@ -524,7 +645,7 @@ export default function InfraMindEnrollment() {
                 >
                   Free AI Enrollment
                 </p>
-                <p className="mt-2 text-lg font-bold leading-snug tracking-[0.01em] sm:text-xl text-ivory">
+                <p className="mt-2 text-lg font-bold leading-snug tracking-[0.01em] sm:text-xl text-gold-hi">
                   {decodedHeading}
                 </p>
                 <p
@@ -539,7 +660,7 @@ export default function InfraMindEnrollment() {
                   Subject to available founding-batch slots and application review. Submission does not
                   guarantee automatic acceptance.
                 </p>
-                <ProgressDots stage={stage} />
+                <StepTabs stage={stage} onJump={setStage} />
               </motion.div>
             )}
           </AnimatePresence>

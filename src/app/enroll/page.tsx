@@ -3,14 +3,14 @@ import HeroCta from "@/components/HeroCta";
 
 export default function EnrollPage() {
   return (
-    <main className="bg-midnight">
+    <main className="min-h-screen bg-midnight">
       <section
         className="mx-auto flex max-w-xl flex-col items-center gap-4 px-5 pt-16 text-center font-mono sm:px-8"
       >
         <p className="text-[11px] uppercase tracking-[0.35em] text-gold-hi/70">
           Free AI Starter Program
         </p>
-        <h1 className="text-3xl font-bold tracking-[0.02em] text-ivory sm:text-4xl">
+        <h1 className="text-3xl font-bold tracking-[0.02em] text-gold-hi sm:text-4xl">
           InfraMind777 Free AI Starter Program — Founding Batch
         </h1>
         <p className="max-w-md text-xs leading-relaxed text-parchment/55 sm:text-sm">

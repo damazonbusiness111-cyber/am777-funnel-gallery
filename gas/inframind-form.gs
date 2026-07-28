@@ -14,7 +14,7 @@
 
 const SPREADSHEET_ID = '16vDhY95uQUHx-DMV2JfvDEjTsayXOqlGyZI6J50yyIg';
 const SHEET_NAME = 'InfraMind777 Applications';
-const HEADERS = ['Timestamp', 'Name', 'Email', 'Experience', 'Learning Style', 'Goals', 'Direction'];
+const HEADERS = ['Timestamp', 'Name', 'Email', 'Experience', 'Learning Style', 'Goals', 'Direction', 'Signature'];
 
 function setupSheet() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -49,6 +49,7 @@ function doPost(e) {
       String(body.learningStyle || ''),
       String(body.goals || ''),
       String(body.direction || ''),
+      String(body.signature || ''),
     ]);
 
     return jsonResponse({ ok: true });

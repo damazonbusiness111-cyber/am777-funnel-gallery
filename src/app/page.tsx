@@ -2,7 +2,7 @@ import CrtIntro from "@/components/CrtIntro";
 
 export default function Home() {
   return (
-    <main>
+    <main className="min-h-screen bg-midnight">
       <CrtIntro />
     </main>
   );
