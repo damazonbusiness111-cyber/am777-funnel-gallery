@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --color-surface: #f5f6f8;
+  --color-surface: #f3f6fa;
   --color-card: #ffffff;
-  --color-ink: #0a0e14;
-  --color-accent: #2f7bf6;
-  --color-accent-hi: #5b9df9;
-  --color-silver: #aab2bd;
+  --color-ink: #101a2c;
+  --color-accent: #2f6fe4;
+  --color-accent-hi: #5b93f0;
+  --color-silver: #9db8e8;
   --color-silver-soft: #e7e9ec;
 }
 
@@ -31,45 +31,44 @@
 }
 
 body {
-  background: var(--color-surface);
+  background:
+    radial-gradient(60% 50% at 12% 8%, rgba(47, 111, 228, 0.16) 0%, transparent 70%),
+    radial-gradient(55% 45% at 90% 15%, rgba(91, 147, 240, 0.14) 0%, transparent 70%),
+    radial-gradient(60% 55% at 50% 100%, rgba(47, 111, 228, 0.1) 0%, transparent 70%),
+    var(--color-surface);
   color: var(--color-ink);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 .glow-panel {
-  background: var(--color-card);
-  box-shadow: 0 1px 2px rgba(10, 14, 20, 0.04), 0 12px 32px -16px rgba(47, 123, 246, 0.18);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: 0 20px 60px rgba(47, 111, 228, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* CRT screen texture, light-theme tuned: soft vignette instead of black,
-   faint blue-tinted scanlines, subtle grain — same signature as a CRT
-   monitor without going dark/retro-green. */
+/* CRT screen texture, matched to crt-onboarding.html's glass treatment. */
 .crt-vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(120% 100% at 50% 40%, transparent 55%, rgba(47, 123, 246, 0.07) 100%);
+  background: radial-gradient(120% 100% at 50% 0%, rgba(47, 111, 228, 0.06) 0%, transparent 60%);
 }
 
 .crt-scanlines {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.04;
   mix-blend-mode: multiply;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(10, 14, 20, 0) 0px,
-    rgba(10, 14, 20, 0) 2px,
-    rgba(10, 14, 20, 0.035) 3px
-  );
+  background: repeating-linear-gradient(to bottom, rgba(16, 26, 44, 0) 0px, rgba(16, 26, 44, 0) 2px, rgba(16, 26, 44, 0.25) 3px);
 }
 
 .crt-grain {
   position: absolute;
   inset: -20%;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.02;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
