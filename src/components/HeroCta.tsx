@@ -19,7 +19,7 @@ export default function HeroCta({
       whileHover={reduced ? undefined : { y: -1 }}
       whileTap={reduced ? undefined : { scale: 0.96 }}
       transition={{ duration: 0.15, ease: "easeOut" }}
-      className="rounded-full bg-gold px-6 py-3 text-xs uppercase tracking-[0.08em] text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-hi"
+      className="rounded-full bg-accent px-6 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hi"
     >
       {children}
     </motion.a>

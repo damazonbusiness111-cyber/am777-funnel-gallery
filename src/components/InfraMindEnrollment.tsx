@@ -30,7 +30,6 @@ const EMPTY_FORM: FormState = {
 };
 
 const PROGRAM_NAME = "InfraMind777 Free AI Starter Program — Founding Batch";
-const SCRAMBLE = "!<>-_\\/[]{}—=+*^?#0123456789";
 const STEP_TABS: { stage: Stage; label: string }[] = [
   { stage: "welcome", label: "Welcome" },
   { stage: "application", label: "Apply" },
@@ -45,39 +44,10 @@ const STEP_INDEX: Record<Stage, number> = {
   success: 3,
 };
 
-function useDecodeIn(text: string, active: boolean) {
-  const [display, setDisplay] = useState(text);
-  useEffect(() => {
-    if (!active) {
-      setDisplay(text);
-      return;
-    }
-    const duration = 500;
-    const totalFrames = Math.round(duration / 30);
-    const revealAt = text.split("").map((_, i) => Math.floor((i / text.length) * totalFrames * 0.75));
-    let frame = 0;
-    const timer = setInterval(() => {
-      frame++;
-      let out = "";
-      for (let i = 0; i < text.length; i++) {
-        const ch = text[i];
-        out += ch === " " || frame >= revealAt[i] ? ch : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
-      }
-      setDisplay(out);
-      if (frame >= totalFrames) {
-        setDisplay(text);
-        clearInterval(timer);
-      }
-    }, 30);
-    return () => clearInterval(timer);
-  }, [text, active]);
-  return display;
-}
-
 const stageVariants = {
-  initial: { opacity: 0, x: 18, filter: "blur(3px)" },
-  animate: { opacity: 1, x: 0, filter: "blur(0px)" },
-  exit: { opacity: 0, x: -18, filter: "blur(3px)" },
+  initial: { opacity: 0, x: 18 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -18 },
 };
 
 const fieldContainer = {
@@ -139,10 +109,10 @@ function CtaButton({ children, reduced, ...props }: CtaButtonProps) {
     <Magnetic reduced={reduced}>
       <motion.button
         {...props}
-        whileHover={reduced ? undefined : { y: -1, boxShadow: "0 10px 24px -8px var(--color-gold)" }}
+        whileHover={reduced ? undefined : { y: -1, boxShadow: "0 10px 24px -8px var(--color-accent)" }}
         whileTap={reduced ? undefined : { scale: 0.94 }}
         transition={springPop}
-        className="rounded-full bg-gold px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-hi disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-full bg-accent px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
       >
         {children}
       </motion.button>
@@ -156,7 +126,7 @@ function StepTabs({ stage, onJump }: { stage: Stage; onJump: (s: Stage) => void 
   if (active < 0) return null;
 
   return (
-    <div className="mt-5 flex justify-center gap-1 border-b border-gold/10">
+    <div className="mt-5 flex justify-center gap-1 border-b border-silver-soft">
       {STEP_TABS.map(({ stage: s, label }) => {
         const idx = STEP_INDEX[s];
         const isActive = idx === active;
@@ -168,14 +138,14 @@ function StepTabs({ stage, onJump }: { stage: Stage; onJump: (s: Stage) => void 
             type="button"
             disabled={!canJump}
             onClick={() => canJump && onJump(s)}
-            className="relative px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors disabled:cursor-default"
-            style={{ color: isActive ? "var(--color-gold-hi)" : isDone ? "var(--color-gold)" : "rgba(216, 190, 122, 0.35)" }}
+            className="relative px-3 py-2 text-[10px] uppercase tracking-[0.1em] transition-colors disabled:cursor-default"
+            style={{ color: isActive ? "var(--color-accent)" : isDone ? "var(--color-ink)" : "var(--color-silver)" }}
           >
             {label}
             {isActive && (
               <motion.div
                 layoutId="step-tab-underline"
-                className="absolute inset-x-1 -bottom-px h-[2px] rounded-full bg-gold-hi"
+                className="absolute inset-x-1 -bottom-px h-[2px] rounded-full bg-accent"
                 transition={{ type: "spring", stiffness: 500, damping: 34 }}
               />
             )}
@@ -189,7 +159,6 @@ function StepTabs({ stage, onJump }: { stage: Stage; onJump: (s: Stage) => void 
 function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boolean }) {
   const [ready, setReady] = useState(reduced);
   const [stalled, setStalled] = useState(false);
-  const status = useDecodeIn(ready ? "Access granted" : "Verifying eligibility", !reduced);
 
   // Deterministic timers drive the state transition — the progress bar's own
   // width animation is purely cosmetic. Relying on Framer Motion's
@@ -209,14 +178,14 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
 
   return (
     <div>
-      <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70">
-        InfraMind777
+      <p className="text-[10px] uppercase tracking-[0.3em] text-accent">InfraMind777</p>
+      <p className="mt-3 text-xs tracking-[0.02em] text-ink/60">
+        {ready ? "Access granted" : "Verifying eligibility"}
       </p>
-      <p className="mt-3 font-mono text-xs tracking-[0.02em] text-parchment/70">{status}</p>
 
-      <div className="relative mx-auto mt-4 h-[3px] w-full max-w-[14rem] overflow-hidden rounded-full bg-gold/[0.14]">
+      <div className="relative mx-auto mt-4 h-[3px] w-full max-w-[14rem] overflow-hidden rounded-full bg-silver-soft">
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full bg-gold"
+          className="absolute inset-y-0 left-0 rounded-full bg-accent"
           initial={{ width: "0%" }}
           animate={{ width: "100%" }}
           transition={reduced ? { duration: 0 } : { duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
@@ -225,7 +194,7 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
 
       {stalled && !ready && (
         <div className="mt-5">
-          <p className="mx-auto max-w-xs font-mono text-[11px] leading-relaxed text-parchment/55">
+          <p className="mx-auto max-w-xs text-[11px] leading-relaxed text-ink/55">
             We couldn&apos;t finish the automatic check. You can still continue with your application.
           </p>
           <div className="mt-3 flex justify-center">
@@ -240,27 +209,14 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
         {ready && (
           <motion.div
             key="invite"
-            initial={reduced ? false : { opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={reduced ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={springPop}
           >
-            <motion.p
-              className="mt-6 text-2xl font-bold leading-snug tracking-[0.01em] text-gold-hi sm:text-3xl"
-              style={{ textShadow: "0 0 5px rgba(216, 190, 122, 0.4), 0 0 16px rgba(184, 138, 59, 0.22)" }}
-              animate={
-                reduced
-                  ? undefined
-                  : { textShadow: [
-                      "0 0 5px rgba(216, 190, 122, 0.4), 0 0 16px rgba(184, 138, 59, 0.22)",
-                      "0 0 10px rgba(216, 190, 122, 0.7), 0 0 26px rgba(184, 138, 59, 0.4)",
-                      "0 0 5px rgba(216, 190, 122, 0.4), 0 0 16px rgba(184, 138, 59, 0.22)",
-                    ] }
-              }
-              transition={reduced ? undefined : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-            >
+            <p className="mt-6 text-2xl font-bold leading-snug tracking-tight text-ink sm:text-3xl">
               You are invited — free!
-            </motion.p>
-            <p className="mx-auto mt-3 max-w-xs font-mono text-[11px] leading-relaxed text-parchment/55">
+            </p>
+            <p className="mx-auto mt-3 max-w-xs text-[11px] leading-relaxed text-ink/55">
               A Founding Batch slot has opened up. No cost, no card — just an application.
             </p>
             <motion.div
@@ -285,8 +241,8 @@ function Field({ children }: { children: React.ReactNode }) {
 }
 
 const fieldClass =
-  "w-full rounded-lg border border-gold/20 bg-midnight/60 px-3 py-2 font-mono text-[13px] text-parchment placeholder:text-parchment/35 outline-none transition-[border-color,box-shadow,transform] duration-200 focus-visible:border-gold focus-visible:shadow-[0_0_0_3px_rgba(184,138,59,0.15)] focus-visible:scale-[1.01]";
-const labelClass = "mb-1 block font-mono text-[10px] uppercase tracking-[0.1em] text-gold-hi/80";
+  "w-full rounded-lg border border-silver-soft bg-white px-3 py-2 text-[13px] text-ink placeholder:text-ink/35 outline-none transition-[border-color,box-shadow,transform] duration-200 focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_rgba(47,123,246,0.15)] focus-visible:scale-[1.01]";
+const labelClass = "mb-1 block text-[10px] uppercase tracking-[0.1em] text-accent";
 
 export default function InfraMindEnrollment() {
   const [stage, setStage] = useState<Stage>("loading");
@@ -320,7 +276,6 @@ export default function InfraMindEnrollment() {
           : stage === "success"
             ? "Your InfraMind777 Application Has Been Received"
             : "";
-  const decodedHeading = useDecodeIn(heading, !reduced);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -355,21 +310,14 @@ export default function InfraMindEnrollment() {
   }
 
   return (
-    <section
-      aria-label="Free AI Starter Program enrollment"
-      className="relative bg-midnight py-10 font-mono sm:py-14"
-    >
+    <section aria-label="Free AI Starter Program enrollment" className="relative bg-surface py-10 sm:py-14">
       <div className="mx-auto w-full max-w-sm px-5 sm:px-6">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 6, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4, ease: premiumEase }}
-          className="crt-screen relative overflow-hidden rounded-[2rem] border border-gold/20 px-5 py-8 text-center sm:px-7"
+          className="glow-panel relative overflow-hidden rounded-[2rem] border border-silver-soft px-5 py-8 text-center sm:px-7"
         >
-          <div className="crt-vignette" aria-hidden="true" />
-          <div className="crt-scanlines" aria-hidden="true" />
-          <div className="crt-grain" aria-hidden="true" />
-          <div className="relative">
           <AnimatePresence mode="popLayout" initial={false}>
             {stage === "loading" && (
               <motion.div
@@ -393,30 +341,12 @@ export default function InfraMindEnrollment() {
                 exit={reduced ? undefined : "exit"}
                 transition={{ duration: 0.32, ease: premiumEase }}
               >
-                <p
-                  className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70"
-                >
-                  Free AI Starter Program
-                </p>
-                <p className="mt-3 text-xl font-bold leading-snug tracking-[0.01em] sm:text-2xl text-gold-hi">
-                  {decodedHeading}
-                  <motion.span
-                    aria-hidden="true"
-                    className="ml-1 inline-block text-gold-hi"
-                    animate={reduced ? undefined : { opacity: [1, 1, 0, 0] }}
-                    transition={reduced ? undefined : { duration: 1.1, repeat: Infinity, times: [0, 0.49, 0.5, 1] }}
-                  >
-                    _
-                  </motion.span>
-                </p>
-                <p
-                  className="mx-auto mt-3 max-w-xs font-mono text-xs leading-relaxed text-parchment/55"
-                >
+                <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Free AI Starter Program</p>
+                <p className="mt-3 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{heading}</p>
+                <p className="mx-auto mt-3 max-w-xs text-xs leading-relaxed text-ink/55">
                   Free Founding Batch enrollment is open for applicants who want to build real skills with AI.
                 </p>
-                <p
-                  className="mx-auto mt-3 max-w-xs font-mono text-[10px] leading-relaxed text-parchment/40"
-                >
+                <p className="mx-auto mt-3 max-w-xs text-[10px] leading-relaxed text-ink/40">
                   Subject to available founding-batch slots and application review. Submission does not
                   guarantee automatic acceptance.
                 </p>
@@ -443,17 +373,9 @@ export default function InfraMindEnrollment() {
                 exit={reduced ? undefined : "exit"}
                 transition={{ duration: 0.32, ease: premiumEase }}
               >
-                <p
-                  className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70"
-                >
-                  Free Program Application
-                </p>
-                <p className="mt-2 text-lg font-bold tracking-[0.01em] sm:text-xl text-gold-hi">
-                  {decodedHeading}
-                </p>
-                <p
-                  className="mx-auto mt-2 max-w-xs font-mono text-[11px] leading-relaxed text-parchment/55"
-                >
+                <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Free Program Application</p>
+                <p className="mt-2 text-lg font-bold tracking-tight text-ink sm:text-xl">{heading}</p>
+                <p className="mx-auto mt-2 max-w-xs text-[11px] leading-relaxed text-ink/55">
                   A few questions on your goals, experience, and how you like to learn.
                 </p>
 
@@ -570,7 +492,7 @@ export default function InfraMindEnrollment() {
                         whileHover={reduced ? undefined : { y: -1 }}
                         whileTap={reduced ? undefined : { scale: 0.94 }}
                         transition={springPop}
-                        className="rounded-full border px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] border-gold text-gold-hi bg-transparent"
+                        className="rounded-full border border-accent bg-transparent px-5 py-2.5 text-[11px] uppercase tracking-[0.08em] text-accent"
                       >
                         Back
                       </motion.button>
@@ -593,13 +515,9 @@ export default function InfraMindEnrollment() {
                 exit={reduced ? undefined : "exit"}
                 transition={{ duration: 0.32, ease: premiumEase }}
               >
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70">
-                  Free Program Application
-                </p>
-                <p className="mt-2 text-lg font-bold tracking-[0.01em] sm:text-xl text-gold-hi">
-                  {decodedHeading}
-                </p>
-                <p className="mx-auto mt-2 max-w-xs font-mono text-[11px] leading-relaxed text-parchment/55">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Free Program Application</p>
+                <p className="mt-2 text-lg font-bold tracking-tight text-ink sm:text-xl">{heading}</p>
+                <p className="mx-auto mt-2 max-w-xs text-[11px] leading-relaxed text-ink/55">
                   Nothing scary here — just pop your name below to confirm this application is really from you.
                   That&apos;s it.
                 </p>
@@ -634,9 +552,9 @@ export default function InfraMindEnrollment() {
                         required
                         checked={form.agreed}
                         onChange={(e) => update("agreed", e.target.checked)}
-                        className="mt-0.5 h-4 w-4 shrink-0 accent-[color:var(--color-gold)]"
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-[color:var(--color-accent)]"
                       />
-                      <span className="font-mono text-[11px] leading-relaxed text-parchment/70">
+                      <span className="text-[11px] leading-relaxed text-ink/70">
                         Yes, this is really me applying, and I&apos;d love a shot at a spot in the Founding Batch.
                       </span>
                     </label>
@@ -650,7 +568,7 @@ export default function InfraMindEnrollment() {
                         whileHover={reduced ? undefined : { y: -1 }}
                         whileTap={reduced ? undefined : { scale: 0.94 }}
                         transition={springPop}
-                        className="rounded-full border px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.08em] border-gold text-gold-hi bg-transparent"
+                        className="rounded-full border border-accent bg-transparent px-5 py-2.5 text-[11px] uppercase tracking-[0.08em] text-accent"
                       >
                         Back
                       </motion.button>
@@ -683,27 +601,17 @@ export default function InfraMindEnrollment() {
                   initial={reduced ? false : { opacity: 0, scale: 0.4 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={springPop}
-                  className="mx-auto grid h-11 w-11 place-items-center rounded-full border text-base border-gold text-gold-hi bg-gold/[0.08]"
+                  className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-accent bg-accent/10 text-base text-accent"
                 >
                   ✓
                 </motion.div>
-                <p
-                  className="mt-3 font-mono text-[10px] uppercase tracking-[0.3em] text-gold-hi/70"
-                >
-                  Free AI Enrollment
-                </p>
-                <p className="mt-2 text-lg font-bold leading-snug tracking-[0.01em] sm:text-xl text-gold-hi">
-                  {decodedHeading}
-                </p>
-                <p
-                  className="mx-auto mt-3 max-w-xs font-mono text-[11px] leading-relaxed text-parchment/55"
-                >
+                <p className="mt-3 text-[10px] uppercase tracking-[0.3em] text-accent">Free AI Enrollment</p>
+                <p className="mt-2 text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">{heading}</p>
+                <p className="mx-auto mt-3 max-w-xs text-[11px] leading-relaxed text-ink/55">
                   Your application for the {PROGRAM_NAME} has been received. Your answers will be reviewed to
                   understand your goals, experience, learning approach, and the direction you want to build.
                 </p>
-                <p
-                  className="mx-auto mt-3 max-w-xs font-mono text-[10px] leading-relaxed text-parchment/40"
-                >
+                <p className="mx-auto mt-3 max-w-xs text-[10px] leading-relaxed text-ink/40">
                   Subject to available founding-batch slots and application review. Submission does not
                   guarantee automatic acceptance.
                 </p>
@@ -711,7 +619,6 @@ export default function InfraMindEnrollment() {
               </motion.div>
             )}
           </AnimatePresence>
-          </div>
         </motion.div>
       </div>
     </section>
