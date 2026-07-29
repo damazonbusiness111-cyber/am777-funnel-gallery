@@ -30,6 +30,7 @@ const EMPTY_FORM: FormState = {
 };
 
 const PROGRAM_NAME = "InfraMind777 Free AI Starter Program — Founding Batch";
+const SCRAMBLE = "!<>-_\\/[]{}—=+*^?#0123456789";
 const STEP_TABS: { stage: Stage; label: string }[] = [
   { stage: "welcome", label: "Welcome" },
   { stage: "application", label: "Apply" },
@@ -43,6 +44,35 @@ const STEP_INDEX: Record<Stage, number> = {
   signature: 2,
   success: 3,
 };
+
+function useDecodeIn(text: string, active: boolean) {
+  const [display, setDisplay] = useState(text);
+  useEffect(() => {
+    if (!active) {
+      setDisplay(text);
+      return;
+    }
+    const duration = 500;
+    const totalFrames = Math.round(duration / 30);
+    const revealAt = text.split("").map((_, i) => Math.floor((i / text.length) * totalFrames * 0.75));
+    let frame = 0;
+    const timer = setInterval(() => {
+      frame++;
+      let out = "";
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        out += ch === " " || frame >= revealAt[i] ? ch : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
+      }
+      setDisplay(out);
+      if (frame >= totalFrames) {
+        setDisplay(text);
+        clearInterval(timer);
+      }
+    }, 30);
+    return () => clearInterval(timer);
+  }, [text, active]);
+  return display;
+}
 
 const stageVariants = {
   initial: { opacity: 0, x: 18 },
@@ -159,6 +189,7 @@ function StepTabs({ stage, onJump }: { stage: Stage; onJump: (s: Stage) => void 
 function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boolean }) {
   const [ready, setReady] = useState(reduced);
   const [stalled, setStalled] = useState(false);
+  const status = useDecodeIn(ready ? "Access granted" : "Verifying eligibility", !reduced);
 
   // Deterministic timers drive the state transition — the progress bar's own
   // width animation is purely cosmetic. Relying on Framer Motion's
@@ -179,9 +210,7 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
   return (
     <div>
       <p className="text-[10px] uppercase tracking-[0.3em] text-accent">InfraMind777</p>
-      <p className="mt-3 text-xs tracking-[0.02em] text-ink/60">
-        {ready ? "Access granted" : "Verifying eligibility"}
-      </p>
+      <p className="mt-3 text-xs tracking-[0.02em] text-ink/60">{status}</p>
 
       <div className="relative mx-auto mt-4 h-[3px] w-full max-w-[14rem] overflow-hidden rounded-full bg-silver-soft">
         <motion.div
@@ -213,9 +242,23 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
             animate={{ opacity: 1, y: 0 }}
             transition={springPop}
           >
-            <p className="mt-6 text-2xl font-bold leading-snug tracking-tight text-ink sm:text-3xl">
+            <motion.p
+              className="mt-6 text-2xl font-bold leading-snug tracking-tight text-ink sm:text-3xl"
+              animate={
+                reduced
+                  ? undefined
+                  : {
+                      textShadow: [
+                        "0 0 0px rgba(47,123,246,0)",
+                        "0 0 20px rgba(47,123,246,0.3)",
+                        "0 0 0px rgba(47,123,246,0)",
+                      ],
+                    }
+              }
+              transition={reduced ? undefined : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+            >
               You are invited — free!
-            </p>
+            </motion.p>
             <p className="mx-auto mt-3 max-w-xs text-[11px] leading-relaxed text-ink/55">
               A Founding Batch slot has opened up. No cost, no card — just an application.
             </p>
@@ -276,6 +319,7 @@ export default function InfraMindEnrollment() {
           : stage === "success"
             ? "Your InfraMind777 Application Has Been Received"
             : "";
+  const decodedHeading = useDecodeIn(heading, !reduced);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -310,14 +354,32 @@ export default function InfraMindEnrollment() {
   }
 
   return (
-    <section aria-label="Free AI Starter Program enrollment" className="relative bg-surface py-10 sm:py-14">
-      <div className="mx-auto w-full max-w-sm px-5 sm:px-6">
+    <section aria-label="Free AI Starter Program enrollment" className="relative overflow-hidden bg-surface py-10 sm:py-14">
+      {!reduced && (
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/3 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ background: "radial-gradient(closest-side, rgba(47,123,246,0.14), transparent)" }}
+          animate={{ scale: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+      <div className="relative mx-auto w-full max-w-sm px-5 sm:px-6">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 6, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4, ease: premiumEase }}
           className="glow-panel relative overflow-hidden rounded-[2rem] border border-silver-soft px-5 py-8 text-center sm:px-7"
         >
+          {!reduced && (
+            <motion.div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 h-20"
+              style={{ background: "linear-gradient(to bottom, transparent, rgba(47,123,246,0.06), transparent)" }}
+              animate={{ top: ["-10%", "110%"] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+            />
+          )}
           <AnimatePresence mode="popLayout" initial={false}>
             {stage === "loading" && (
               <motion.div
@@ -342,7 +404,7 @@ export default function InfraMindEnrollment() {
                 transition={{ duration: 0.32, ease: premiumEase }}
               >
                 <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Free AI Starter Program</p>
-                <p className="mt-3 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{heading}</p>
+                <p className="mt-3 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{decodedHeading}</p>
                 <p className="mx-auto mt-3 max-w-xs text-xs leading-relaxed text-ink/55">
                   Free Founding Batch enrollment is open for applicants who want to build real skills with AI.
                 </p>
@@ -374,7 +436,7 @@ export default function InfraMindEnrollment() {
                 transition={{ duration: 0.32, ease: premiumEase }}
               >
                 <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Free Program Application</p>
-                <p className="mt-2 text-lg font-bold tracking-tight text-ink sm:text-xl">{heading}</p>
+                <p className="mt-2 text-lg font-bold tracking-tight text-ink sm:text-xl">{decodedHeading}</p>
                 <p className="mx-auto mt-2 max-w-xs text-[11px] leading-relaxed text-ink/55">
                   A few questions on your goals, experience, and how you like to learn.
                 </p>
@@ -516,7 +578,7 @@ export default function InfraMindEnrollment() {
                 transition={{ duration: 0.32, ease: premiumEase }}
               >
                 <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Free Program Application</p>
-                <p className="mt-2 text-lg font-bold tracking-tight text-ink sm:text-xl">{heading}</p>
+                <p className="mt-2 text-lg font-bold tracking-tight text-ink sm:text-xl">{decodedHeading}</p>
                 <p className="mx-auto mt-2 max-w-xs text-[11px] leading-relaxed text-ink/55">
                   Nothing scary here — just pop your name below to confirm this application is really from you.
                   That&apos;s it.
@@ -606,7 +668,7 @@ export default function InfraMindEnrollment() {
                   ✓
                 </motion.div>
                 <p className="mt-3 text-[10px] uppercase tracking-[0.3em] text-accent">Free AI Enrollment</p>
-                <p className="mt-2 text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">{heading}</p>
+                <p className="mt-2 text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">{decodedHeading}</p>
                 <p className="mx-auto mt-3 max-w-xs text-[11px] leading-relaxed text-ink/55">
                   Your application for the {PROGRAM_NAME} has been received. Your answers will be reviewed to
                   understand your goals, experience, learning approach, and the direction you want to build.
