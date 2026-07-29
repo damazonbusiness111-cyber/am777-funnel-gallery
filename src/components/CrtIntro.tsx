@@ -115,6 +115,10 @@ export default function CrtIntro({
           }}
           className="glow-panel relative mx-auto overflow-hidden rounded-[2rem] border border-silver-soft px-6 py-14 text-center sm:px-12 sm:py-20"
         >
+          <div className="crt-vignette" aria-hidden="true" />
+          <div className="crt-scanlines" aria-hidden="true" />
+          <div className="crt-grain" aria-hidden="true" />
+
           {/* Faint scanning light sweep for a HUD-ish, futuristic feel */}
           {!reduced && (
             <motion.div

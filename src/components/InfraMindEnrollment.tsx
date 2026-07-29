@@ -371,6 +371,9 @@ export default function InfraMindEnrollment() {
           transition={{ duration: 0.4, ease: premiumEase }}
           className="glow-panel relative overflow-hidden rounded-[2rem] border border-silver-soft px-5 py-8 text-center sm:px-7"
         >
+          <div className="crt-vignette" aria-hidden="true" />
+          <div className="crt-scanlines" aria-hidden="true" />
+          <div className="crt-grain" aria-hidden="true" />
           {!reduced && (
             <motion.div
               aria-hidden="true"
@@ -380,6 +383,7 @@ export default function InfraMindEnrollment() {
               transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
             />
           )}
+          <div className="relative">
           <AnimatePresence mode="popLayout" initial={false}>
             {stage === "loading" && (
               <motion.div
@@ -681,6 +685,7 @@ export default function InfraMindEnrollment() {
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </motion.div>
       </div>
     </section>
