@@ -29,7 +29,7 @@ const EMPTY_FORM: FormState = {
   agreed: false,
 };
 
-const PROGRAM_NAME = "InfraMind777 Free AI Starter Program — Founding Batch";
+const PROGRAM_NAME = "InfraMind777 Practical AI Starter Program";
 const SCRAMBLE = "!<>-_\\/[]{}—=+*^?#0123456789";
 const STEP_TABS: { stage: Stage; label: string }[] = [
   { stage: "welcome", label: "Welcome" },
@@ -260,7 +260,7 @@ function LoadingGate({ onEnter, reduced }: { onEnter: () => void; reduced: boole
               You are invited — free!
             </motion.p>
             <p className="mx-auto mt-3 max-w-xs text-[11px] leading-relaxed text-ink/55">
-              A Founding Batch slot has opened up. No cost, no card — just an application.
+              A starter slot has opened up. No cost, no card — just an application.
             </p>
             <motion.div
               initial={reduced ? false : { opacity: 0, y: 6 }}
@@ -313,7 +313,7 @@ export default function InfraMindEnrollment() {
     stage === "welcome"
       ? PROGRAM_NAME
       : stage === "application"
-        ? "Founding Batch Applicant"
+        ? "Starter Program Applicant"
         : stage === "signature"
           ? "Just One Last Step"
           : stage === "success"
@@ -354,7 +354,7 @@ export default function InfraMindEnrollment() {
   }
 
   return (
-    <section aria-label="Free AI Starter Program enrollment" className="relative overflow-hidden bg-surface py-10 sm:py-14">
+    <section aria-label="Practical AI Starter Program enrollment" className="relative overflow-hidden bg-surface py-10 sm:py-14">
       {!reduced && (
         <motion.div
           aria-hidden="true"
@@ -407,13 +407,13 @@ export default function InfraMindEnrollment() {
                 exit={reduced ? undefined : "exit"}
                 transition={{ duration: 0.32, ease: premiumEase }}
               >
-                <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Free AI Starter Program</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Practical AI Starter Program</p>
                 <p className="mt-3 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{decodedHeading}</p>
                 <p className="mx-auto mt-3 max-w-xs text-xs leading-relaxed text-ink/55">
-                  Free Founding Batch enrollment is open for applicants who want to build real skills with AI.
+                  Free enrollment is open for applicants who want to build real, practical AI skills.
                 </p>
                 <p className="mx-auto mt-3 max-w-xs text-[10px] leading-relaxed text-ink/40">
-                  Subject to available founding-batch slots and application review. Submission does not
+                  Subject to available slots and application review. Submission does not
                   guarantee automatic acceptance.
                 </p>
                 <div className="mt-5 flex justify-center">
@@ -621,7 +621,7 @@ export default function InfraMindEnrollment() {
                         className="mt-0.5 h-4 w-4 shrink-0 accent-[color:var(--color-accent)]"
                       />
                       <span className="text-[11px] leading-relaxed text-ink/70">
-                        Yes, this is really me applying, and I&apos;d love a shot at a spot in the Founding Batch.
+                        Yes, this is really me applying, and I&apos;d love a shot at a spot in the program.
                       </span>
                     </label>
                   </Field>
@@ -671,14 +671,14 @@ export default function InfraMindEnrollment() {
                 >
                   ✓
                 </motion.div>
-                <p className="mt-3 text-[10px] uppercase tracking-[0.3em] text-accent">Free AI Enrollment</p>
+                <p className="mt-3 text-[10px] uppercase tracking-[0.3em] text-accent">Practical AI Starter Program</p>
                 <p className="mt-2 text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">{decodedHeading}</p>
                 <p className="mx-auto mt-3 max-w-xs text-[11px] leading-relaxed text-ink/55">
                   Your application for the {PROGRAM_NAME} has been received. Your answers will be reviewed to
                   understand your goals, experience, learning approach, and the direction you want to build.
                 </p>
                 <p className="mx-auto mt-3 max-w-xs text-[10px] leading-relaxed text-ink/40">
-                  Subject to available founding-batch slots and application review. Submission does not
+                  Subject to available slots and application review. Submission does not
                   guarantee automatic acceptance.
                 </p>
                 <StepTabs stage={stage} onJump={setStage} />

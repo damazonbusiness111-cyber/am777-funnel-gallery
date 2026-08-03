@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Free Enrollment — AI Education Course",
+  title: "InfraMind777 Practical AI Starter Program — Enrollment",
 };
 
 export default function RootLayout({
