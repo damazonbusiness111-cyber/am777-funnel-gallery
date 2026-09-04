@@ -1,11 +1,12 @@
-<!-- Design plan — reskinned to match the AM777 CRM concept's established theme this session
+<!-- Design plan — synced to the "AM777 Signal Field" visual direction (Sept 2026)
 Subject: AM777's lead magnet — a free 7-day drip course teaching AI/workflow automation (n8n/Zapier/Make),
          onboarding form to capture a new student's goals so the drip content can be tailored.
-Color: same palette as the CRM concept — near-black navy bg #05070C, card surface #0E1730, blue accent #3B82F6/
-       #5B9CFF, white text #F5F8FF, hairline borders. One accent color, not competing hues.
-Type: monospace (ui-monospace/SF Mono) for headings/labels/eyebrows — same "HUD-adjacent" system used across the
-      CRM — sans-serif for supporting body copy, matching the CRM's own font-split rule.
-Layout: unchanged structure (hero + 3-step progressive form + step dots) — only the surface treatment changes.
+Color: same tokens as the Signal Field concept — deep-space navy bg #060911, surface #0c1220/#111a2e,
+       electric-blue accent #3B82F6, aqua accent-2 #5eead4 for state/glow, hairline borders.
+Type: Space Grotesk for display/headings, Inter for body, JetBrains Mono for labels/HUD/eyebrows —
+      the same three-role split used across the AM777 console concept.
+Layout: unchanged structure (hero + 3-step progressive form + step dots) — surface, motion and mark synced;
+        a WebGL node network (Three.js) now drifts behind the hero, matching the console's signal-field motif.
 Submission: still the same honest pattern — a prefilled Gmail draft to Darwin, no fake "submitted" claim.
 -->
 <!DOCTYPE html>
@@ -13,29 +14,52 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
 <head>
 <meta charset="UTF-8" />
 <title>AM777 — Learn Automation, 7-Day Drip Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;650;750&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   :root{
-    --bg:#05070C; --card:#0E1730; --card-soft:#0B1226;
-    --blue:#3B82F6; --blue-bright:#5B9CFF;
-    --white:#F5F8FF; --ink-soft:#8A96BE; --ink-faint:#5B6690;
-    --hairline:rgba(91,156,255,.22); --hairline-soft:rgba(255,255,255,.07);
-    --good:#34D399; --good-bg:rgba(52,211,153,.12);
-    --bad:#F87171; --bad-bg:rgba(248,113,113,.12);
-    --ease: cubic-bezier(.3,1.1,.4,1);
+    --bg:#060911; --card:#111a2e; --card-soft:#0c1220;
+    --blue:#3B82F6; --blue-bright:#5eaefc;
+    --white:#eef2fb; --ink-soft:#8b96b5; --ink-faint:#5b6584;
+    --hairline:rgba(59,130,246,.28); --hairline-soft:#1c2740;
+    --good:#5eead4; --good-bg:rgba(94,234,212,.13);
+    --bad:#f87171; --bad-bg:rgba(248,113,113,.12);
+    --ease: cubic-bezier(.16,1,.3,1);
     --glow: 0 0 0 1px rgba(59,130,246,.3), 0 10px 28px -12px rgba(59,130,246,.4);
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6fb; --card:#ffffff; --card-soft:#eef1f9;
+    --blue:#2f6fe0; --blue-bright:#2f6fe0;
+    --white:#0b1120; --ink-soft:#4c5772; --ink-faint:#8993ac;
+    --hairline:rgba(47,111,224,.22); --hairline-soft:#dde3f0;
+    --good:#0e9a86; --good-bg:rgba(14,154,134,.12);
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f4f6fb; --card:#ffffff; --card-soft:#eef1f9;
+      --blue:#2f6fe0; --blue-bright:#2f6fe0;
+      --white:#0b1120; --ink-soft:#4c5772; --ink-faint:#8993ac;
+      --hairline:rgba(47,111,224,.22); --hairline-soft:#dde3f0;
+      --good:#0e9a86; --good-bg:rgba(14,154,134,.12);
+    }
   }
   *{ box-sizing:border-box; }
   html,body{ height:100%; }
   body{
     margin:0; background:var(--bg); color:var(--white);
-    font-family: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
-    -webkit-font-smoothing:antialiased;
+    font-family:'Inter',-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
   }
   .page{ position:relative; z-index:1; }
-  .sans{ font-family:-apple-system,"SF Pro Text","Segoe UI",Inter,sans-serif; }
+  .sans{ font-family:'Inter',-apple-system,"SF Pro Text","Segoe UI",sans-serif; }
   a{ color:inherit; }
   button{ font-family:inherit; }
   :focus-visible{ outline:2px solid var(--blue-bright); outline-offset:2px; border-radius:6px; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+
+  #field{ position:fixed; inset:0; z-index:0; opacity:.85; pointer-events:none; }
 
   .page{ max-width:920px; margin:0 auto; padding:56px 24px 90px; }
 
@@ -43,18 +67,18 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
   .brand svg{ width:32px; height:32px; }
   .brand b{ font-size:14.5px; font-weight:800; letter-spacing:.01em; }
   .brand b span{ color:var(--blue-bright); }
-  .brand small{ display:block; font-size:9.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.12em; font-weight:650; font-family:-apple-system,sans-serif; }
+  .brand small{ display:block; font-size:9.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.16em; font-weight:500; font-family:'JetBrains Mono',ui-monospace,monospace; }
 
   .hero{ text-align:center; margin-bottom:52px; }
   .hero .eyebrow{ display:inline-flex; align-items:center; gap:7px; background:var(--good-bg); color:var(--good); font-size:12px; font-weight:700; padding:6px 14px; border-radius:999px; margin-bottom:20px; }
-  .hero h1{ font-size:clamp(30px,5vw,42px); font-weight:800; letter-spacing:-.015em; line-height:1.12; margin:0 0 16px; text-wrap:balance; font-family:-apple-system,sans-serif; }
+  .hero h1{ font-size:clamp(30px,5vw,42px); font-weight:700; letter-spacing:-.01em; line-height:1.08; margin:0 0 16px; text-wrap:balance; font-family:'Space Grotesk',sans-serif; }
   .hero h1 em{ font-style:normal; color:var(--blue-bright); }
   .hero p.sans{ font-size:15.5px; color:var(--ink-soft); max-width:520px; margin:0 auto; line-height:1.6; }
 
   .proof-row{ display:flex; justify-content:center; gap:28px; margin-top:28px; flex-wrap:wrap; }
   .proof{ text-align:center; }
   .proof b{ display:block; font-size:22px; font-weight:800; color:var(--white); }
-  .proof span{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.06em; font-family:-apple-system,sans-serif; }
+  .proof span{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.1em; font-family:'JetBrains Mono',ui-monospace,monospace; }
 
   .form-card{
     background:var(--card); border:1px solid var(--hairline-soft); border-radius:24px; padding:8px; position:relative;
@@ -66,17 +90,17 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
   .step-dot{ flex:1; height:4px; border-radius:999px; background:var(--hairline-soft); transition: background .4s var(--ease); }
   .step-dot.done, .step-dot.active{ background:var(--blue); }
   .step-label{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--blue-bright); margin-bottom:6px; }
-  .step-title{ font-size:20px; font-weight:750; margin:0 0 4px; letter-spacing:-.01em; font-family:-apple-system,sans-serif; }
+  .step-title{ font-size:20px; font-weight:700; margin:0 0 4px; letter-spacing:-.01em; font-family:'Space Grotesk',sans-serif; }
   .step-sub{ font-size:13px; color:var(--ink-soft); margin:0 0 26px; }
 
   .field{ margin-bottom:18px; }
-  .field label{ display:block; font-size:12.5px; font-weight:650; color:var(--ink-soft); margin-bottom:7px; font-family:-apple-system,sans-serif; }
+  .field label{ display:block; font-size:11.5px; font-weight:500; color:var(--ink-soft); margin-bottom:7px; text-transform:uppercase; letter-spacing:.06em; font-family:'JetBrains Mono',ui-monospace,monospace; }
   .field input[type="text"], .field input[type="email"]{
     width:100%; padding:12px 14px; background:var(--card-soft); border:1px solid var(--hairline-soft); border-radius:11px; font-size:14px;
-    color:var(--white); font-family:-apple-system,sans-serif; transition:border-color .2s, box-shadow .2s;
+    color:var(--white); font-family:'Inter',-apple-system,sans-serif; transition:border-color .2s, box-shadow .2s;
   }
   .field input:focus{ outline:none; border-color:var(--hairline); box-shadow:0 0 0 3px rgba(59,130,246,.12); }
-  .field .err{ color:var(--bad); font-size:11.5px; margin-top:5px; display:none; font-family:-apple-system,sans-serif; }
+  .field .err{ color:var(--bad); font-size:11.5px; margin-top:5px; display:none; font-family:'Inter',-apple-system,sans-serif; }
   .field.invalid input{ border-color:var(--bad); }
   .field.invalid .err{ display:block; }
 
@@ -92,19 +116,19 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
   .choice input:checked ~ .radio{ border-color:var(--blue); }
   .choice input:checked ~ .radio::after{ transform:scale(1); }
   .choice.on{ border-color:var(--blue); box-shadow:var(--glow); }
-  .choice b{ font-size:13.5px; font-weight:650; display:block; font-family:-apple-system,sans-serif; }
-  .choice span{ font-size:11.5px; color:var(--ink-soft); font-family:-apple-system,sans-serif; }
+  .choice b{ font-size:13.5px; font-weight:600; display:block; font-family:'Inter',sans-serif; }
+  .choice span{ font-size:11.5px; color:var(--ink-soft); font-family:'Inter',sans-serif; }
 
   .chip-grid{ display:flex; flex-wrap:wrap; gap:9px; }
   .chip{
     border:1.5px solid var(--hairline-soft); border-radius:999px; padding:9px 16px; font-size:12.5px; font-weight:650;
-    cursor:pointer; transition: all .2s var(--ease); color:var(--ink-soft); background:var(--card-soft); font-family:-apple-system,sans-serif;
+    cursor:pointer; transition: all .2s var(--ease); color:var(--ink-soft); background:var(--card-soft); font-family:'Inter',-apple-system,sans-serif;
   }
   .chip:hover{ border-color:var(--hairline); }
   .chip.on{ background:var(--blue); border-color:var(--blue); color:#fff; }
 
   .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:28px; gap:12px; }
-  .btn{ border:none; border-radius:11px; padding:12px 22px; font-size:13px; font-weight:700; cursor:pointer; transition: transform .2s var(--ease), box-shadow .2s; font-family:-apple-system,sans-serif; text-transform:uppercase; letter-spacing:.03em; }
+  .btn{ border:none; border-radius:11px; padding:12px 22px; font-size:12.5px; font-weight:500; cursor:pointer; transition: transform .2s var(--ease), box-shadow .2s; font-family:'JetBrains Mono',ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; }
   .btn-primary{ background:linear-gradient(135deg,var(--blue),#2563EB); color:#fff; box-shadow:0 10px 24px -10px rgba(59,130,246,.7); }
   .btn-primary:hover{ transform:translateY(-1px); }
   .btn-primary:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
@@ -133,32 +157,34 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
   .field.valid .field-ok{ opacity:1; }
   .field.valid input{ border-color:var(--good); padding-right:38px; }
 
-  .step-progress{ font-size:10.5px; color:var(--ink-faint); text-align:right; margin-top:-24px; margin-bottom:20px; font-family:-apple-system,sans-serif; }
+  .step-progress{ font-size:10.5px; color:var(--ink-faint); text-align:right; margin-top:-24px; margin-bottom:20px; font-family:'JetBrains Mono',ui-monospace,monospace; }
 
   .success{ text-align:center; padding:20px 6px 10px; position:relative; }
   .success .check{
     width:56px; height:56px; border-radius:50%; background:var(--good-bg); color:var(--good);
     display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
   }
-  .success h2{ font-size:21px; font-weight:750; margin:0 0 8px; font-family:-apple-system,sans-serif; }
-  .success p{ font-size:13px; color:var(--ink-soft); line-height:1.6; max-width:380px; margin:0 auto 20px; font-family:-apple-system,sans-serif; }
+  .success h2{ font-size:21px; font-weight:700; margin:0 0 8px; font-family:'Space Grotesk',sans-serif; }
+  .success p{ font-size:13px; color:var(--ink-soft); line-height:1.6; max-width:380px; margin:0 auto 20px; font-family:'Inter',-apple-system,sans-serif; }
   .success .btn-primary{ display:inline-flex; align-items:center; gap:8px; }
 
-  .trust{ text-align:center; margin-top:26px; font-size:11.5px; color:var(--ink-faint); font-family:-apple-system,sans-serif; }
+  .trust{ text-align:center; margin-top:26px; font-size:11px; color:var(--ink-faint); font-family:'JetBrains Mono',ui-monospace,monospace; letter-spacing:.02em; }
 
   @media (max-width:640px){
     .page{ padding:36px 16px 70px; }
     .form-inner{ padding:26px 18px 22px; }
     .proof-row{ gap:20px; }
   }
+  .btn:focus-visible{ outline-offset:3px; }
 </style>
 </head>
 <body>
+<canvas id="field"></canvas>
 <div class="page">
   <div class="brand">
-    <svg viewBox="0 0 44 44" fill="none">
-      <path d="M9 34L22 8L35 34M14.5 23.5H29.5" stroke="#F5F8FF" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>
-      <path d="M15 34L19.5 25L24 31L28.5 25L33 34H15Z" fill="#3B82F6"/>
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M50 8 L86 78 H66 L57 60 H43 L34 78 H14 Z M50 30 L58 46 H42 Z" fill="var(--blue)"/>
+      <path d="M50 8 L20 78 H37 L46 58 H54 L63 78 H80 L64 44 H48 L58 24 Z" fill="var(--white)" opacity=".92"/>
     </svg>
     <div><b>AM<span>777</span></b><small>Automation Solutions</small></div>
   </div>
@@ -387,6 +413,60 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
       "&su=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
     window.open(url, "_blank", "noopener");
   });
+})();
+</script>
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var canvas = document.getElementById('field');
+  if (!canvas || !window.THREE || reduce) return;
+
+  function dark(){
+    var t = document.documentElement.getAttribute('data-theme');
+    return t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches) || !t;
+  }
+  var c = dark() ? {node:0x3b82f6, line:0x1c2740} : {node:0x2f6fe0, line:0xd7dfef};
+
+  var renderer = new THREE.WebGLRenderer({canvas:canvas, alpha:true, antialias:true});
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  camera.position.z = 24;
+
+  var COUNT = 70, pts = [];
+  var positions = new Float32Array(COUNT*3);
+  for (var i=0;i<COUNT;i++){
+    var v = new THREE.Vector3((Math.random()-0.5)*36,(Math.random()-0.5)*24,(Math.random()-0.5)*14);
+    pts.push(v); positions[i*3]=v.x; positions[i*3+1]=v.y; positions[i*3+2]=v.z;
+  }
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  var points = new THREE.Points(geo, new THREE.PointsMaterial({color:c.node, size:.32, transparent:true, opacity:.7}));
+  scene.add(points);
+
+  var lineGeo = new THREE.BufferGeometry();
+  var arr = [], maxD = 7;
+  for (var a=0;a<pts.length;a++){ for (var b=a+1;b<pts.length;b++){
+    if (pts[a].distanceTo(pts[b]) < maxD){ arr.push(pts[a].x,pts[a].y,pts[a].z, pts[b].x,pts[b].y,pts[b].z); }
+  }}
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(arr),3));
+  var lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({color:c.line, transparent:true, opacity:.45}));
+  scene.add(lines);
+
+  function resize(){
+    var w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w,h,false); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize); resize();
+
+  var t = 0;
+  (function animate(){
+    t += 0.0018;
+    scene.rotation.y = Math.sin(t*0.6)*0.14;
+    scene.rotation.x = Math.cos(t*0.4)*0.05;
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  })();
 })();
 </script>
 </body>
