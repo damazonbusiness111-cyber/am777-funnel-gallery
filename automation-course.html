@@ -21,8 +21,8 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
 <style>
   :root{
     --bg:#060911; --card:#111a2e; --card-soft:#0c1220;
-    --blue:#3B82F6; --blue-bright:#5eaefc;
-    --white:#eef2fb; --ink-soft:#8b96b5; --ink-faint:#5b6584;
+    --blue:#3B82F6; --blue-bright:#5eaefc; --blue-matte:#3d63b0; --blue-matte-hover:#345496;
+    --white:#e6e9f2; --ink-soft:#8b96b5; --ink-faint:#5b6584;
     --hairline:rgba(59,130,246,.28); --hairline-soft:#1c2740;
     --good:#5eead4; --good-bg:rgba(94,234,212,.13);
     --bad:#f87171; --bad-bg:rgba(248,113,113,.12);
@@ -31,7 +31,7 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
   }
   :root[data-theme="light"]{
     --bg:#f4f6fb; --card:#ffffff; --card-soft:#eef1f9;
-    --blue:#2f6fe0; --blue-bright:#2f6fe0;
+    --blue:#2f6fe0; --blue-bright:#2f6fe0; --blue-matte:#2f6fe0; --blue-matte-hover:#265dbd;
     --white:#0b1120; --ink-soft:#4c5772; --ink-faint:#8993ac;
     --hairline:rgba(47,111,224,.22); --hairline-soft:#dde3f0;
     --good:#0e9a86; --good-bg:rgba(14,154,134,.12);
@@ -39,7 +39,7 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
   @media (prefers-color-scheme: light){
     :root:not([data-theme="dark"]){
       --bg:#f4f6fb; --card:#ffffff; --card-soft:#eef1f9;
-      --blue:#2f6fe0; --blue-bright:#2f6fe0;
+      --blue:#2f6fe0; --blue-bright:#2f6fe0; --blue-matte:#2f6fe0; --blue-matte-hover:#265dbd;
       --white:#0b1120; --ink-soft:#4c5772; --ink-faint:#8993ac;
       --hairline:rgba(47,111,224,.22); --hairline-soft:#dde3f0;
       --good:#0e9a86; --good-bg:rgba(14,154,134,.12);
@@ -129,7 +129,8 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
 
   .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:28px; gap:12px; }
   .btn{ border:none; border-radius:11px; padding:12px 22px; font-size:12.5px; font-weight:500; cursor:pointer; transition: transform .2s var(--ease), box-shadow .2s; font-family:'JetBrains Mono',ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; }
-  .btn-primary{ background:linear-gradient(135deg,var(--blue),#2563EB); color:#fff; box-shadow:0 10px 24px -10px rgba(59,130,246,.7); }
+  .btn-primary{ background:var(--blue-matte); color:#e9ecf5; box-shadow:0 8px 20px -12px rgba(59,130,246,.5); }
+  .btn-primary:hover{ background:var(--blue-matte-hover); }
   .btn-primary:hover{ transform:translateY(-1px); }
   .btn-primary:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
   .btn-ghost{ background:none; color:var(--ink-soft); }
@@ -416,6 +417,11 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
 })();
 </script>
 <script>
+// Same "signal field" WebGL treatment as the Lead Command CRM's login screen:
+// an AM777 emblem crest (drawn onto a canvas texture, layered for faux depth)
+// floating above a drifting, fogged node network. Nodes drift individually
+// (own phase/speed) with their lines following each frame — living movement,
+// not a static backdrop — and the whole scene eases toward the pointer.
 (function(){
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var canvas = document.getElementById('field');
@@ -425,32 +431,102 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
     var t = document.documentElement.getAttribute('data-theme');
     return t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches) || !t;
   }
-  var c = dark() ? {node:0x3b82f6, line:0x1c2740} : {node:0x2f6fe0, line:0xd7dfef};
+  var c = dark()
+    ? {node:0x5eaefc, line:0x2c3a5c, fog:0x060911, mark:'#eef2fb', accent:'#3b82f6', label:'#5b6584'}
+    : {node:0x2f6fe0, line:0xc7d2e6, fog:0xf4f6fb, mark:'#0b1120', accent:'#2f6fe0', label:'#8993ac'};
+
+  function drawEmblemTexture(){
+    var cv = document.createElement('canvas'); cv.width = cv.height = 512;
+    var ctx = cv.getContext('2d');
+    ctx.save(); ctx.translate(56,40); ctx.scale(4,4);
+    ctx.fillStyle = c.mark; ctx.globalAlpha = .92;
+    ctx.beginPath();
+    ctx.moveTo(50,8); ctx.lineTo(20,78); ctx.lineTo(37,78); ctx.lineTo(46,58); ctx.lineTo(54,58);
+    ctx.lineTo(63,78); ctx.lineTo(80,78); ctx.lineTo(64,44); ctx.lineTo(48,44); ctx.lineTo(58,24);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = c.accent; ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.moveTo(50,8); ctx.lineTo(86,78); ctx.lineTo(66,78); ctx.lineTo(57,60); ctx.lineTo(43,60);
+    ctx.lineTo(34,78); ctx.lineTo(14,78); ctx.closePath();
+    ctx.moveTo(50,30); ctx.lineTo(58,46); ctx.lineTo(42,46); ctx.closePath();
+    ctx.fill('evenodd'); ctx.restore();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = c.mark; ctx.font = '700 62px "Space Grotesk", sans-serif';
+    ctx.fillText('AM777', 256, 400);
+    ctx.fillStyle = c.label; ctx.font = '500 20px "JetBrains Mono", monospace'; ctx.letterSpacing = '6px';
+    ctx.fillText('AUTOMATION SOLUTIONS', 259, 434);
+    return cv;
+  }
+  function makeGlowTexture(color){
+    var cv = document.createElement('canvas'); cv.width = cv.height = 256;
+    var ctx = cv.getContext('2d');
+    var grad = ctx.createRadialGradient(128,128,0,128,128,128);
+    grad.addColorStop(0,color); grad.addColorStop(1,'rgba(59,130,246,0)');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,256,256);
+    var tex = new THREE.CanvasTexture(cv); tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter;
+    return tex;
+  }
 
   var renderer = new THREE.WebGLRenderer({canvas:canvas, alpha:true, antialias:true});
   var scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(c.fog, 18, 46);
   var camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
   camera.position.z = 24;
 
-  var COUNT = 70, pts = [];
-  var positions = new Float32Array(COUNT*3);
+  var COUNT = 150, pts = [], drift = [];
+  var basePositions = new Float32Array(COUNT*3);
   for (var i=0;i<COUNT;i++){
-    var v = new THREE.Vector3((Math.random()-0.5)*36,(Math.random()-0.5)*24,(Math.random()-0.5)*14);
-    pts.push(v); positions[i*3]=v.x; positions[i*3+1]=v.y; positions[i*3+2]=v.z;
+    var v = new THREE.Vector3((Math.random()-0.5)*46,(Math.random()-0.5)*44,(Math.random()-0.5)*30-4);
+    pts.push(v);
+    basePositions[i*3]=v.x; basePositions[i*3+1]=v.y; basePositions[i*3+2]=v.z;
+    drift.push({phase:Math.random()*Math.PI*2, speed:0.25+Math.random()*0.35, amp:0.7+Math.random()*1.1});
   }
+  var positions = basePositions.slice();
   var geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
-  var points = new THREE.Points(geo, new THREE.PointsMaterial({color:c.node, size:.32, transparent:true, opacity:.7}));
+  var posAttr = new THREE.BufferAttribute(positions,3); posAttr.setUsage(THREE.DynamicDrawUsage);
+  geo.setAttribute('position', posAttr);
+  var points = new THREE.Points(geo, new THREE.PointsMaterial({color:c.node, size:.36, sizeAttenuation:true, transparent:true, opacity:.88, fog:true}));
   scene.add(points);
 
-  var lineGeo = new THREE.BufferGeometry();
-  var arr = [], maxD = 7;
+  var linkPairs = [], maxD = 8;
   for (var a=0;a<pts.length;a++){ for (var b=a+1;b<pts.length;b++){
-    if (pts[a].distanceTo(pts[b]) < maxD){ arr.push(pts[a].x,pts[a].y,pts[a].z, pts[b].x,pts[b].y,pts[b].z); }
+    if (pts[a].distanceTo(pts[b]) < maxD){ linkPairs.push(a,b); }
   }}
-  lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(arr),3));
-  var lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({color:c.line, transparent:true, opacity:.45}));
+  var linePositions = new Float32Array(linkPairs.length*3);
+  var lineGeo = new THREE.BufferGeometry();
+  var linePosAttr = new THREE.BufferAttribute(linePositions,3); linePosAttr.setUsage(THREE.DynamicDrawUsage);
+  lineGeo.setAttribute('position', linePosAttr);
+  var lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({color:c.line, transparent:true, opacity:.5, fog:true}));
   scene.add(lines);
+
+  function updateDrift(time){
+    for (var i=0;i<COUNT;i++){
+      var d = drift[i];
+      var s = Math.sin(time*d.speed + d.phase), cc = Math.cos(time*d.speed*0.8 + d.phase);
+      positions[i*3]   = basePositions[i*3]   + s*d.amp;
+      positions[i*3+1] = basePositions[i*3+1] + cc*d.amp*0.8;
+      positions[i*3+2] = basePositions[i*3+2] + s*cc*d.amp*0.5;
+    }
+    posAttr.needsUpdate = true;
+    for (var k=0;k<linkPairs.length;k+=2){
+      var ai=linkPairs[k], bi=linkPairs[k+1], o=k*3;
+      linePositions[o]=positions[ai*3]; linePositions[o+1]=positions[ai*3+1]; linePositions[o+2]=positions[ai*3+2];
+      linePositions[o+3]=positions[bi*3]; linePositions[o+4]=positions[bi*3+1]; linePositions[o+5]=positions[bi*3+2];
+    }
+    linePosAttr.needsUpdate = true;
+  }
+
+  var texture = new THREE.CanvasTexture(drawEmblemTexture());
+  texture.colorSpace = THREE.SRGBColorSpace; texture.generateMipmaps = false; texture.minFilter = THREE.LinearFilter;
+  var emblemGroup = new THREE.Group();
+  var glow = new THREE.Mesh(new THREE.PlaneGeometry(15,15), new THREE.MeshBasicMaterial({map:makeGlowTexture('rgba(59,130,246,0.3)'), transparent:true, depthWrite:false, fog:true}));
+  glow.position.z = -1.4; emblemGroup.add(glow);
+  [{z:-0.9,scale:6.3,opacity:.09},{z:-0.4,scale:6.1,opacity:.16},{z:0,scale:6,opacity:.34}].forEach(function(l){
+    var layer = new THREE.Mesh(new THREE.PlaneGeometry(l.scale,l.scale), new THREE.MeshBasicMaterial({map:texture, transparent:true, opacity:l.opacity, depthWrite:false, fog:true}));
+    layer.position.z = l.z; emblemGroup.add(layer);
+  });
+  emblemGroup.position.set(0, 13.5, -14);
+  scene.add(emblemGroup);
 
   function resize(){
     var w = window.innerWidth, h = window.innerHeight;
@@ -459,11 +535,32 @@ Submission: still the same honest pattern — a prefilled Gmail draft to Darwin,
   }
   window.addEventListener('resize', resize); resize();
 
+  var pointer = {x:0,y:0}, eased = {x:0,y:0};
+  window.addEventListener('pointermove', function(e){
+    pointer.x = (e.clientX/window.innerWidth)*2-1;
+    pointer.y = (e.clientY/window.innerHeight)*2-1;
+  });
+
   var t = 0;
   (function animate(){
-    t += 0.0018;
-    scene.rotation.y = Math.sin(t*0.6)*0.14;
-    scene.rotation.x = Math.cos(t*0.4)*0.05;
+    t += 0.0016;
+    eased.x += (pointer.x-eased.x)*0.045;
+    eased.y += (pointer.y-eased.y)*0.045;
+    updateDrift(t*60);
+
+    scene.rotation.y = Math.sin(t*0.5)*0.17 + eased.x*0.3;
+    scene.rotation.x = Math.cos(t*0.35)*0.06 - eased.y*0.14;
+    camera.position.x = eased.x*2.1;
+    camera.position.y = -eased.y*1.5;
+    camera.lookAt(0,4,-10);
+
+    points.rotation.y += 0.00035;
+    lines.rotation.y = points.rotation.y;
+
+    emblemGroup.position.y = 13.5 + Math.sin(t*1.1)*0.4;
+    emblemGroup.rotation.y = Math.sin(t*0.6)*0.07 + eased.x*0.05;
+    emblemGroup.rotation.x = eased.y*0.035;
+
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   })();
