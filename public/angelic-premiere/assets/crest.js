@@ -5,6 +5,7 @@
 const cv = document.getElementById('crest');
 if (!cv || !window.THREE) return;
 const wrap = cv.parentElement;
+const GLASS = parseFloat(cv.dataset.glass || '.14');   // face opacity of the glass: .14 = clear smoked glass, ~.8 = near-solid lacquer (for light pages)
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let renderer;
 try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: 'high-performance' }); }
@@ -95,7 +96,7 @@ img.onload = () => {
   for (let i = 0; i < d.length; i += 4) { const k = C.data[i] > 60 ? (C.data[i] - 20) / 212 : 0; E.data[i] = 150 * k; E.data[i + 1] = 118 * k; E.data[i + 2] = 64 * k; E.data[i + 3] = 255; }
   ex.putImageData(E, 0, 0);
   const al = mk(), ax = al.getContext('2d'), A = ax.createImageData(N, N);
-  for (let i = 0; i < d.length; i += 4) { const t = (C.data[i] - 26) / (232 - 26); const v = 255 * Math.max(.14, Math.min(1, t * 1.15)); A.data[i] = A.data[i + 1] = A.data[i + 2] = v; A.data[i + 3] = 255; }
+  for (let i = 0; i < d.length; i += 4) { const t = (C.data[i] - 26) / (232 - 26); const v = 255 * Math.max(GLASS, Math.min(1, t * 1.15)); A.data[i] = A.data[i + 1] = A.data[i + 2] = v; A.data[i + 3] = 255; }
   ax.putImageData(A, 0, 0);
   const soft = mk(), so = soft.getContext('2d'); so.filter = 'blur(3px)'; so.drawImage(bump, 0, 0);
   const tex = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.encoding = THREE.sRGBEncoding; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); t.repeat.set(.5, .5); t.offset.set(.5, .5); return t; };
