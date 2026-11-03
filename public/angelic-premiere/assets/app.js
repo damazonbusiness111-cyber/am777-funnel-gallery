@@ -4,7 +4,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const M = !RM && window.Motion ? window.Motion : null;
 const EASE = [0.22, 1, 0.36, 1];
-const SPRING = { type: 'spring', stiffness: 380, damping: 34 };
+const SPRING = { type: 'spring', stiffness: 700, damping: 45 };
 if ($('.hero2')) document.body.classList.add('has-hero');
 /* cinematic frame: two film bars + a gold seam */
 const cine = () => { const c = document.createElement('div'); c.className = 'cine'; c.setAttribute('aria-hidden', 'true'); c.innerHTML = '<i class="t"></i><i class="b"></i><span class="seam"></span>'; document.body.appendChild(c); return c; };
@@ -113,7 +113,7 @@ if (ex) {
     const old = $('img', stage), img = new Image(); img.src = src; img.alt = alt; img.decoding = 'async';
     stage.appendChild(img);
     if (!M) { old?.remove(); return; }
-    M.animate(img, { opacity: [0, 1], scale: [1.06, 1] }, { duration: .9, ease: EASE }).finished.then(() => old?.remove());
+    M.animate(img, { opacity: [0, 1] }, { duration: .28, ease: EASE }).finished.then(() => old?.remove());
   };
   const renderThumbs = u => {
     thumbs.innerHTML = u.photos.map((p, i) => `<button type="button" aria-label="Photo ${i + 1} of ${u.photos.length}" aria-current="${i === 0}"><img src="${p}" alt="" loading="lazy"></button>`).join('');
@@ -129,7 +129,7 @@ if (ex) {
     $('#ex-rows').innerHTML = u.variants.map(v => `<div class="row"><span class="k">${v[0]}</span><span class="v tnum">${v[1]}</span></div>`).join('');
     $('#ex-link').href = u.slug + '.html'; $('#ex-book').href = 'book.html#' + k;
     setPhoto(u.photos[0], `${u.name} at Angelic Premiere Residences`); renderThumbs(u);
-    if (M) M.animate($$('.ex-title > *, .ex-price, #ex-blurb, #ex-rows .row, .ex-info .acts', ex), { opacity: [0, 1], y: [12, 0] }, { duration: .6, ease: EASE, delay: M.stagger(.05) });
+    if (M) M.animate($$('.ex-title > *, .ex-price, #ex-blurb, #ex-rows .row, .ex-info .acts', ex), { opacity: [.4, 1] }, { duration: .22, ease: EASE });
   };
   seg($('#ex-seg'), render);
   render(cur);
@@ -194,7 +194,7 @@ function go(n, dir = 1) {
   const el = $('.step', booker);
   const swap = () => { st.step = n; renderStep(dir); };
   if (!M) return swap();
-  M.animate(el, { opacity: 0, x: -24 * dir }, { duration: .18, ease: 'easeIn' }).finished.then(swap);
+  M.animate(el, { opacity: 0, x: -12 * dir }, { duration: .1, ease: 'easeIn' }).finished.then(swap);
 }
 function validate() {
   if (st.step === 0 && !st.intent) return 'Choose what you would like to book.';
@@ -223,8 +223,8 @@ function renderStep(dir) {
   summary();
   if (dir !== 0) booker.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'nearest' });
   if (M && dir !== 0) {
-    M.animate(el, { opacity: [0, 1], x: [24 * dir, 0] }, { duration: .45, ease: EASE });
-    M.animate(el.children, { opacity: [0, 1], y: [10, 0] }, { duration: .5, ease: EASE, delay: M.stagger(.05, { startDelay: .05 }) });
+    M.animate(el, { opacity: [0, 1], x: [12 * dir, 0] }, { duration: .25, ease: EASE });
+    
   }
 }
 const err = () => '<p class="err" hidden role="alert"></p>';
@@ -282,7 +282,7 @@ function radio(cb) {
   $$('.opt[role=radio]', booker).forEach(b => b.addEventListener('click', () => {
     $$('.opt[role=radio]', booker).forEach(x => x.setAttribute('aria-checked', x === b)); cb(b.dataset.v); summary();
     if (M) M.animate($('.chk', b), { scale: [.7, 1.15, 1] }, { duration: .4 });
-    setTimeout(() => go(st.step + 1, 1), RM ? 0 : 280);
+    setTimeout(() => go(st.step + 1, 1), RM ? 0 : 90);
   }));
 }
 const syncG = () => { const [m, p] = $$('[data-g]', booker); if (m) { m.disabled = st.guests <= 1; p.disabled = st.guests >= 10; } };
@@ -447,11 +447,8 @@ if (booker) {
     const next = H.dataset.theme === 'dark' ? 'light' : 'dark';
     const r = b.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
     const rad = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    if (M) M.animate(b.querySelectorAll('svg'), { rotate: [-90, 0], scale: [.5, 1] }, { type: 'spring', stiffness: 300, damping: 18 });
-    if (!document.startViewTransition || RM) return apply(next);
-    const vt = document.startViewTransition(() => apply(next));
-    vt.ready.then(() => H.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${rad}px at ${x}px ${y}px)`] },
-      { duration: 750, easing: 'cubic-bezier(.7,0,.2,1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
+    if (M) M.animate(b.querySelectorAll('svg'), { rotate: [-60, 0], scale: [.7, 1] }, { type: 'spring', stiffness: 600, damping: 30 });
+    return apply(next);
   }));
 })();
 

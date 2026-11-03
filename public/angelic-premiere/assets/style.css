@@ -624,3 +624,7 @@ main>section:not(.hero),.sec{content-visibility:auto;contain-intrinsic-size:auto
 @keyframes fabfloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
 @keyframes fabring{0%{transform:scale(.92);opacity:.9}100%{transform:scale(1.28);opacity:0}}
 @media (prefers-reduced-motion:reduce){.fab-logo,.fab-logo .ring{animation:none}}
+
+/* instant toggles */
+.theme-btn,.seg button,.opt .chk,.opt .chk svg,.steps-nav li,.ex-thumbs button{transition-duration:.12s!important}
+:root{transition:none}
