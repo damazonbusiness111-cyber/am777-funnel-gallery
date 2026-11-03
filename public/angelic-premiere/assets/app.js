@@ -6,6 +6,8 @@ const M = !RM && window.Motion ? window.Motion : null;
 const EASE = [0.22, 1, 0.36, 1];
 const SPRING = { type: 'spring', stiffness: 380, damping: 34 };
 if ($('.hero2')) document.body.classList.add('has-hero');
+/* cinematic frame: two film bars + a gold seam */
+const cine = () => { const c = document.createElement('div'); c.className = 'cine'; c.setAttribute('aria-hidden', 'true'); c.innerHTML = '<i class="t"></i><i class="b"></i><span class="seam"></span>'; document.body.appendChild(c); return c; };
 const anim = (el, kf, opt) => M ? M.animate(el, kf, opt) : (Object.entries(kf).forEach(([k, v]) => { const last = Array.isArray(v) ? v[v.length - 1] : v; if (k === 'opacity') el.style && (el.style.opacity = last); }), { finished: Promise.resolve() });
 const DATA = JSON.parse($('#site-data').textContent);
 const UNITS = DATA.units, ORDER = DATA.order;
@@ -342,8 +344,8 @@ if (booker) {
   if (!M || seen) { intro.remove(); window.__heroIn?.(); return; }
 
   H.classList.add('intro-on', 'intro-lock'); scrollTo(0, 0);
-  const slot = $('.intro-slot', intro), bar = $('.intro-bar i', intro);
-  let leaving = false, timer = null, barAnim = null;
+  const slot = $('.intro-slot', intro);
+  let leaving = false, timer = null;
 
   const place = () => {
     if (leaving) return;
@@ -362,13 +364,9 @@ if (booker) {
   M.animate($$('.intro-word span', intro), { opacity: [0, 1], y: [24, 0], filter: ['blur(10px)', 'blur(0px)'] }, { duration: 1.1, ease: EASE, delay: M.stagger(.07, { startDelay: .6 }) });
   M.animate($$('.intro-sub, .intro-foot, .intro-skip', intro), { opacity: [0, 1], y: [12, 0] }, { duration: 1, ease: EASE, delay: M.stagger(.12, { startDelay: 1.2 }) });
 
-  const AUTO = 5.2;
-  const arm = () => {
-    clearTimeout(timer); barAnim?.cancel?.();
-    barAnim = M.animate(bar, { scaleX: [0, 1] }, { duration: AUTO, ease: 'linear' });
-    timer = setTimeout(enter, AUTO * 1000);
-  };
-  const hold = () => { clearTimeout(timer); barAnim?.cancel?.(); bar.style.transform = 'scaleX(0)'; };
+  const AUTO = 6.5;
+  const arm = () => { clearTimeout(timer); timer = setTimeout(enter, AUTO * 1000); };
+  const hold = () => clearTimeout(timer);
   cw.addEventListener('pointerdown', () => { if (!leaving) hold(); });
   cw.addEventListener('pointerup', () => { if (!leaving) setTimeout(arm, 1200); });
 
@@ -388,6 +386,10 @@ if (booker) {
     heldItems().forEach(el => el.style.opacity = 0);
     M.animate($$('.intro-brand, .intro-foot, .intro-skip', intro), { opacity: 0, y: -14, filter: 'blur(8px)' }, { duration: .5, ease: EASE });
     const from = cw.style.transform || 'none';
+    // cinematic letterbox: film bars frame the reveal, then part
+    const lb = cine(); lb.classList.add('frame');
+    M.animate($$('i', lb), { scaleY: [0, 1] }, { duration: .6, ease: [.7, 0, .2, 1] });
+    M.animate($$('i', lb), { scaleY: 0 }, { duration: 1.1, ease: [.7, 0, .2, 1], delay: 1.7 }).finished.then(() => lb.remove());
     M.animate(cw, { transform: [from, 'translate(0px, 0px) scale(1)'] }, { duration: 1.5, ease: [.7, 0, .2, 1], delay: .2 });
     M.animate(0, 1, { duration: 1.6, ease: [.7, 0, .2, 1], delay: .35, onUpdate: v => intro.style.setProperty('--hole', (v * 170).toFixed(2) + 'vmax') });
     setTimeout(() => H.classList.remove('intro-on'), 900);
@@ -400,42 +402,35 @@ if (booker) {
 })();
 
 
-/* ================= BOOK TRANSITION: the tapped button opens into the booking page ================= */
+/* ================= BOOK TRANSITION: cinematic shutter — bars close, gold seam, bars part ================= */
 (() => {
   const KEY = 'angelic-pt';
-  const shell = cx => {
-    const ov = document.createElement('div'); ov.className = 'pt'; ov.setAttribute('aria-hidden', 'true');
-    ov.innerHTML = '<div class="pt-in"><span class="pt-mk"></span><small>Angelic Premiere Residences</small><b>Reserve your stay.</b><i class="pt-line"></i></div>';
-    document.body.appendChild(ov); return ov;
-  };
-  // leaving: circle grows out of the tapped button, then navigate
+  const CUT = [.76, 0, .24, 1];
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href^="book.html"]');
     if (!a || booker || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     try { sessionStorage.setItem(KEY, '1'); } catch {}
     if (!M) { location.href = a.href; return; }
-    const r = a.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    const R = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy)) + 20;
-    const ov = shell(); ov.style.clipPath = `circle(0px at ${cx}px ${cy}px)`;
-    M.animate(a, { scale: [1, .92, 1] }, { duration: .4, ease: EASE });
-    M.animate(0, R, { duration: .8, ease: [.7, 0, .2, 1], onUpdate: v => ov.style.clipPath = `circle(${v}px at ${cx}px ${cy}px)` });
-    M.animate($$('.pt-in > *', ov), { opacity: [0, 1], y: [18, 0], filter: ['blur(6px)', 'blur(0px)'] }, { duration: .6, ease: EASE, delay: M.stagger(.07, { startDelay: .38 }) });
-    M.animate($('.pt-line', ov), { scaleX: [0, 1] }, { duration: .7, ease: EASE, delay: .55 });
-    setTimeout(() => { location.href = a.href; }, 1050);
+    const c = cine(); c.classList.add('shut');
+    M.animate(a, { scale: [1, .93, 1] }, { duration: .4, ease: EASE });
+    M.animate($('main'), { scale: [1, .97], filter: ['blur(0px)', 'blur(3px)'] }, { duration: .7, ease: CUT });
+    M.animate($('.t', c), { y: ['-100%', '0%'] }, { duration: .62, ease: CUT });
+    M.animate($('.b', c), { y: ['100%', '0%'] }, { duration: .62, ease: CUT });
+    M.animate($('.seam', c), { scaleX: [0, 1], opacity: [1, 1] }, { duration: .45, ease: EASE, delay: .5 });
+    setTimeout(() => { location.href = a.href; }, 900);
   });
-  addEventListener('pageshow', e => { if (e.persisted) $$('.pt').forEach(x => x.remove()); });
-  // arriving on the booking page: the curtain lifts, the booking panels rise in
+  addEventListener('pageshow', e => { if (e.persisted) { $$('.cine').forEach(x => x.remove()); $('main') && ($('main').style.transform = '', $('main').style.filter = ''); } });
   let arriving = false; try { arriving = sessionStorage.getItem(KEY) === '1'; sessionStorage.removeItem(KEY); } catch {}
   if (booker && arriving && M) {
-    const ov = shell(); $$('.pt-in > *', ov).forEach(x => x.style.opacity = 1); $('.pt-line', ov).style.transform = 'scaleX(1)';
-    const items = $$('.book-sum > *, .booker'); items.forEach(x => x.style.opacity = 0);
-    M.animate($('.pt-in', ov), { opacity: [1, 0], y: [0, -30] }, { duration: .5, ease: EASE, delay: .15 });
-    M.animate(ov, { y: ['0%', '-100%'] }, { duration: 1, ease: [.7, 0, .2, 1], delay: .35 }).finished.then(() => ov.remove());
-    M.animate(items, { opacity: [0, 1], y: [40, 0] }, { duration: 1, ease: EASE, delay: M.stagger(.07, { startDelay: .75 }) });
+    const c = cine(); c.classList.add('shut', 'closed');
+    const items = $$('.book-head > *, .book-sum > *, .booker'); items.forEach(x => x.style.opacity = 0);
+    M.animate($('.seam', c), { scaleX: [1, 0] }, { duration: .45, ease: EASE, delay: .1 });
+    M.animate($('.t', c), { y: ['0%', '-100%'] }, { duration: .9, ease: CUT, delay: .35 });
+    M.animate($('.b', c), { y: ['0%', '100%'] }, { duration: .9, ease: CUT, delay: .35 }).finished.then(() => c.remove());
+    M.animate(items, { opacity: [0, 1], y: [36, 0], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 1, ease: EASE, delay: M.stagger(.06, { startDelay: .6 }) });
   }
 })();
-
 
 /* ================= THEME TOGGLE: light by default, dark on request, circular reveal ================= */
 (() => {

@@ -503,3 +503,19 @@ a.row .chev{margin-left:auto;color:var(--mute);width:8px;height:14px;flex:0 0 au
 ::view-transition-new(root){z-index:9999}
 @media (max-width:420px){.hdr .wrap{gap:10px}.theme-btn,.view-btn,.menu-btn{width:34px;height:34px}}
 @media (max-width:860px){.u-title .pr{text-align:left}}
+
+
+/* ---------- cinematic frame (intro letterbox + Book shutter) ---------- */
+.cine{position:fixed;inset:0;z-index:300;pointer-events:none}
+.cine i{position:absolute;left:0;right:0;background:#060505;display:block}
+.cine.frame i{height:11vh}
+.cine.frame .t{top:0;transform-origin:top}
+.cine.frame .b{bottom:0;transform-origin:bottom}
+.cine.shut i{height:50.5%}
+.cine.shut .t{top:0;transform:translateY(-100%)}
+.cine.shut .b{bottom:0;transform:translateY(100%)}
+.cine.shut.closed .t,.cine.shut.closed .b{transform:none}
+.cine .seam{position:absolute;left:0;right:0;top:50%;height:1px;margin-top:-.5px;background:linear-gradient(90deg,transparent,#e6cf98 20%,#fff3d6 50%,#e6cf98 80%,transparent);transform:scaleX(0);box-shadow:0 0 18px 2px rgba(230,207,152,.45)}
+.cine.shut.closed .seam{transform:scaleX(1)}
+.cine.frame .seam{display:none}
+main{transform-origin:50% 40%}
