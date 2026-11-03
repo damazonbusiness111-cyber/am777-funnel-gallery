@@ -399,6 +399,43 @@ if (booker) {
   addEventListener('keydown', e => { if (!leaving && (e.key === 'Enter' || e.key === 'Escape') && !$('.vp')) { e.preventDefault(); enter(); } });
 })();
 
+
+/* ================= BOOK TRANSITION: the tapped button opens into the booking page ================= */
+(() => {
+  const KEY = 'angelic-pt';
+  const shell = cx => {
+    const ov = document.createElement('div'); ov.className = 'pt'; ov.setAttribute('aria-hidden', 'true');
+    ov.innerHTML = '<div class="pt-in"><span class="pt-mk"></span><small>Angelic Premiere Residences</small><b>Reserve your stay.</b><i class="pt-line"></i></div>';
+    document.body.appendChild(ov); return ov;
+  };
+  // leaving: circle grows out of the tapped button, then navigate
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="book.html"]');
+    if (!a || booker || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    try { sessionStorage.setItem(KEY, '1'); } catch {}
+    if (!M) { location.href = a.href; return; }
+    const r = a.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const R = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy)) + 20;
+    const ov = shell(); ov.style.clipPath = `circle(0px at ${cx}px ${cy}px)`;
+    M.animate(a, { scale: [1, .92, 1] }, { duration: .4, ease: EASE });
+    M.animate(0, R, { duration: .8, ease: [.7, 0, .2, 1], onUpdate: v => ov.style.clipPath = `circle(${v}px at ${cx}px ${cy}px)` });
+    M.animate($$('.pt-in > *', ov), { opacity: [0, 1], y: [18, 0], filter: ['blur(6px)', 'blur(0px)'] }, { duration: .6, ease: EASE, delay: M.stagger(.07, { startDelay: .38 }) });
+    M.animate($('.pt-line', ov), { scaleX: [0, 1] }, { duration: .7, ease: EASE, delay: .55 });
+    setTimeout(() => { location.href = a.href; }, 1050);
+  });
+  addEventListener('pageshow', e => { if (e.persisted) $$('.pt').forEach(x => x.remove()); });
+  // arriving on the booking page: the curtain lifts, the booking panels rise in
+  let arriving = false; try { arriving = sessionStorage.getItem(KEY) === '1'; sessionStorage.removeItem(KEY); } catch {}
+  if (booker && arriving && M) {
+    const ov = shell(); $$('.pt-in > *', ov).forEach(x => x.style.opacity = 1); $('.pt-line', ov).style.transform = 'scaleX(1)';
+    const items = $$('.book-sum > *, .booker'); items.forEach(x => x.style.opacity = 0);
+    M.animate($('.pt-in', ov), { opacity: [1, 0], y: [0, -30] }, { duration: .5, ease: EASE, delay: .15 });
+    M.animate(ov, { y: ['0%', '-100%'] }, { duration: 1, ease: [.7, 0, .2, 1], delay: .35 }).finished.then(() => ov.remove());
+    M.animate(items, { opacity: [0, 1], y: [40, 0] }, { duration: 1, ease: EASE, delay: M.stagger(.07, { startDelay: .75 }) });
+  }
+})();
+
 /* floating book pill: shows after the quick booking bar leaves view */
 const fab = $('.fab');
 if (fab) {
