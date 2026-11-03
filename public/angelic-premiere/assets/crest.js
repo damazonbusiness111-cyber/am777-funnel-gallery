@@ -10,7 +10,7 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let renderer;
 try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: 'high-performance' }); }
 catch { return; }
-renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
@@ -48,13 +48,13 @@ scene.add(new THREE.AmbientLight(0xfff2dc, .35));
 const R = .985, shape = new THREE.Shape();
 for (let i = 0; i < 6; i++) { const a = Math.PI / 2 + i * Math.PI / 3, x = Math.cos(a) * R, y = Math.sin(a) * R; i ? shape.lineTo(x, y) : shape.moveTo(x, y); }
 shape.closePath();
-const geo = new THREE.ExtrudeGeometry(shape, { depth: .14, bevelEnabled: true, bevelThickness: .05, bevelSize: .03, bevelSegments: 12, curveSegments: 1 });
+const geo = new THREE.ExtrudeGeometry(shape, { depth: .14, bevelEnabled: true, bevelThickness: .05, bevelSize: .03, bevelSegments: 5, curveSegments: 1 });
 geo.translate(0, 0, -.07);
 /* caps share one group; split it so the back cap gets its own (un-mirrored) material */
 { const [lid, side] = geo.groups, half = lid.count / 2; geo.clearGroups(); geo.addGroup(lid.start, half, 2); geo.addGroup(lid.start + half, half, 0); geo.addGroup(side.start, side.count, 1); }
 
 const rim = new THREE.MeshStandardMaterial({ color: 0xe8cc8e, metalness: .9, roughness: .26, envMap, envMapIntensity: 1.3, emissive: 0x4a3514, emissiveIntensity: .55 });
-const face = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 1, roughness: 1, envMap, envMapIntensity: 1.25, clearcoat: 1, clearcoatRoughness: .08, emissive: 0xffffff, emissiveIntensity: .32 });
+const face = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 1, envMap, envMapIntensity: 1.3, emissive: 0xffffff, emissiveIntensity: .32 });
 const back = face.clone();
 const crest = new THREE.Mesh(geo, [face, rim, back]);
 const rig = new THREE.Group(); rig.add(crest); scene.add(rig);
@@ -64,7 +64,7 @@ const sweep = new THREE.SpotLight(0xfff4dc, 0, 14, .32, .65, 1.2);
 sweep.position.set(-4, 2.5, 4); sweep.target = rig; scene.add(sweep);
 
 /* gold dust drifting around the crest */
-const DUST = 160, dpos = new Float32Array(DUST * 3), dseed = new Float32Array(DUST);
+const DUST = 70, dpos = new Float32Array(DUST * 3), dseed = new Float32Array(DUST);
 for (let i = 0; i < DUST; i++) {
   const a = Math.random() * Math.PI * 2, r = 1.25 + Math.random() * .9;
   dpos[i * 3] = Math.cos(a) * r; dpos[i * 3 + 1] = (Math.random() - .5) * 2.4; dpos[i * 3 + 2] = Math.sin(a) * r * .5 - .3; dseed[i] = Math.random() * 6.28;
@@ -78,7 +78,7 @@ const dust = new THREE.Points(dgeo, dmat); scene.add(dust);
 /* build colour / metal-rough / bump maps from the logo artwork */
 const img = new Image();
 img.onload = () => {
-  const N = 1024, mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c; };
+  const N = 768, mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c; };
   const src = mk(), sx = src.getContext('2d'); sx.drawImage(img, 0, 0, N, N);
   const d = sx.getImageData(0, 0, N, N).data;
   const col = mk(), mr = mk(), bump = mk();
@@ -123,8 +123,8 @@ cv.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { 
 
 /* sizing — scale() raises the render resolution while the crest is shown enlarged (intro) */
 let resK = 1;
-const DPR = () => Math.min(devicePixelRatio || 1, 2);
-window.__crest = { scale(k) { resK = Math.max(1, Math.min(2.4, k)); renderer.setPixelRatio(Math.min(3, DPR() * resK)); size(); } };
+const DPR = () => Math.min(devicePixelRatio || 1, 1.5);
+window.__crest = { scale(k) { resK = Math.max(1, Math.min(1.6, k)); renderer.setPixelRatio(Math.min(2, DPR() * resK)); size(); } };
 const size = () => { const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); };
 new ResizeObserver(size).observe(wrap); size();
 

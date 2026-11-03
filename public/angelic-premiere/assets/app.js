@@ -69,13 +69,13 @@ if (M) {
   $$('[data-r]').forEach(group => {
     const items = group.hasAttribute('data-r-children') ? [...group.children] : [group];
     if (group.getBoundingClientRect().top < innerHeight * .92) return; // already on screen: stay put
-    items.forEach(i => { i.style.opacity = 0; i.style.transform = 'translateY(28px)'; });
-    M.inView(group, () => { M.animate(items, { opacity: 1, y: [28, 0] }, { duration: 1, ease: EASE, delay: M.stagger(.09) }); }, { amount: .15 });
+    items.forEach(i => { i.style.opacity = 0; i.style.transform = 'translateY(16px)'; });
+    M.inView(group, () => { M.animate(items, { opacity: 1, y: [16, 0] }, { duration: .7, ease: EASE, delay: M.stagger(.06) }); }, { amount: .15 });
   });
   // hero entrance
   window.__heroIn = () => {
     const hero = $$('.hero-top > :not(.crest-wrap), .hero2 .slide-dots, .hero2 .scroll-cue');
-    if (hero.length) M.animate(hero, { opacity: [0, 1], y: [22, 0], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 1.1, ease: EASE, delay: M.stagger(.1, { startDelay: .05 }) });
+    if (hero.length) M.animate(hero, { opacity: [0, 1], y: [14, 0] }, { duration: .8, ease: EASE, delay: M.stagger(.07, { startDelay: .05 }) });
   };
   if (!$('#intro')) window.__heroIn();
   const hi = $('.hero-img img');
@@ -97,7 +97,7 @@ if (slides.length) {
   const show = n => { slides[i].classList.remove('on'); dots[i]?.setAttribute('aria-current', 'false'); i = (n + slides.length) % slides.length; slides[i].classList.add('on'); dots[i]?.setAttribute('aria-current', 'true'); };
   let timer = RM ? null : setInterval(() => show(i + 1), 6500);
   dots.forEach((d, n) => d.addEventListener('click', () => { show(n); clearInterval(timer); timer = RM ? null : setInterval(() => show(i + 1), 6500); }));
-  if (M) M.scroll(M.animate($('.slides'), { y: ['0%', '18%'], scale: [1, 1.06] }, { ease: 'linear' }), { target: $('.hero'), offset: ['start start', 'end start'] });
+  if (M) M.scroll(M.animate($('.slides'), { y: ['0%', '10%'] }, { ease: 'linear' }), { target: $('.hero'), offset: ['start start', 'end start'] });
 }
 const hdr = $('.hdr');
 if (document.body.classList.contains('has-hero') && hdr) {
@@ -361,10 +361,10 @@ if (booker) {
   place(); addEventListener('resize', place);
 
   // entrance: letters rise in one by one, then the subtitle and controls
-  M.animate($$('.intro-word span', intro), { opacity: [0, 1], y: [24, 0], filter: ['blur(10px)', 'blur(0px)'] }, { duration: 1.1, ease: EASE, delay: M.stagger(.07, { startDelay: .6 }) });
-  M.animate($$('.intro-sub, .intro-foot, .intro-skip', intro), { opacity: [0, 1], y: [12, 0] }, { duration: 1, ease: EASE, delay: M.stagger(.12, { startDelay: 1.2 }) });
+  M.animate($$('.intro-word span', intro), { opacity: [0, 1], y: [10, 0] }, { duration: .7, ease: EASE, delay: M.stagger(.04, { startDelay: .35 }) });
+  M.animate($$('.intro-sub, .intro-foot, .intro-skip', intro), { opacity: [0, 1] }, { duration: .7, ease: EASE, delay: M.stagger(.08, { startDelay: .75 }) });
 
-  const AUTO = 6.5;
+  const AUTO = 3.8;
   const arm = () => { clearTimeout(timer); timer = setTimeout(enter, AUTO * 1000); };
   const hold = () => clearTimeout(timer);
   cw.addEventListener('pointerdown', () => { if (!leaving) hold(); });
@@ -384,17 +384,17 @@ if (booker) {
     clearTimeout(timer); removeEventListener('resize', place);
     try { sessionStorage.setItem('angelic-intro', '1'); } catch {}
     heldItems().forEach(el => el.style.opacity = 0);
-    M.animate($$('.intro-brand, .intro-foot, .intro-skip', intro), { opacity: 0, y: -14, filter: 'blur(8px)' }, { duration: .5, ease: EASE });
+    M.animate($$('.intro-brand, .intro-foot, .intro-skip', intro), { opacity: 0 }, { duration: .35, ease: EASE });
     const from = cw.style.transform || 'none';
-    // cinematic letterbox: film bars frame the reveal, then part
+    // slim letterbox frames the cut, then eases away
     const lb = cine(); lb.classList.add('frame');
-    M.animate($$('i', lb), { scaleY: [0, 1] }, { duration: .6, ease: [.7, 0, .2, 1] });
-    M.animate($$('i', lb), { scaleY: 0 }, { duration: 1.1, ease: [.7, 0, .2, 1], delay: 1.7 }).finished.then(() => lb.remove());
-    M.animate(cw, { transform: [from, 'translate(0px, 0px) scale(1)'] }, { duration: 1.5, ease: [.7, 0, .2, 1], delay: .2 });
-    M.animate(0, 1, { duration: 1.6, ease: [.7, 0, .2, 1], delay: .35, onUpdate: v => intro.style.setProperty('--hole', (v * 170).toFixed(2) + 'vmax') });
-    setTimeout(() => H.classList.remove('intro-on'), 900);
-    setTimeout(() => window.__heroIn?.(), 1250);
-    setTimeout(() => { intro.remove(); cw.style.transform = ''; H.classList.remove('intro-lock'); window.__crest?.scale(1); }, 2100);
+    M.animate($$('i', lb), { scaleY: [0, 1] }, { duration: .45, ease: [.65, 0, .35, 1] });
+    M.animate($$('i', lb), { scaleY: 0 }, { duration: .7, ease: [.65, 0, .35, 1], delay: 1.05 }).finished.then(() => lb.remove());
+    M.animate(cw, { transform: [from, 'translate(0px, 0px) scale(1)'] }, { duration: 1.05, ease: [.65, 0, .35, 1], delay: .1 });
+    M.animate(intro, { opacity: [1, 0] }, { duration: .8, ease: [.65, 0, .35, 1], delay: .3 });
+    setTimeout(() => H.classList.remove('intro-on'), 650);
+    setTimeout(() => window.__heroIn?.(), 750);
+    setTimeout(() => { intro.remove(); cw.style.transform = ''; H.classList.remove('intro-lock'); window.__crest?.scale(1); }, 1250);
   }
   $('.intro-enter', intro).addEventListener('click', enter);
   $('.intro-skip', intro).addEventListener('click', enter);
@@ -414,21 +414,21 @@ if (booker) {
     if (!M) { location.href = a.href; return; }
     const c = cine(); c.classList.add('shut');
     M.animate(a, { scale: [1, .93, 1] }, { duration: .4, ease: EASE });
-    M.animate($('main'), { scale: [1, .97], filter: ['blur(0px)', 'blur(3px)'] }, { duration: .7, ease: CUT });
-    M.animate($('.t', c), { y: ['-100%', '0%'] }, { duration: .62, ease: CUT });
-    M.animate($('.b', c), { y: ['100%', '0%'] }, { duration: .62, ease: CUT });
-    M.animate($('.seam', c), { scaleX: [0, 1], opacity: [1, 1] }, { duration: .45, ease: EASE, delay: .5 });
-    setTimeout(() => { location.href = a.href; }, 900);
+    M.animate($('main'), { opacity: [1, .6] }, { duration: .45, ease: CUT });
+    M.animate($('.t', c), { y: ['-100%', '0%'] }, { duration: .48, ease: CUT });
+    M.animate($('.b', c), { y: ['100%', '0%'] }, { duration: .48, ease: CUT });
+    M.animate($('.seam', c), { scaleX: [0, 1] }, { duration: .3, ease: EASE, delay: .36 });
+    setTimeout(() => { location.href = a.href; }, 640);
   });
   addEventListener('pageshow', e => { if (e.persisted) { $$('.cine').forEach(x => x.remove()); $('main') && ($('main').style.transform = '', $('main').style.filter = ''); } });
   let arriving = false; try { arriving = sessionStorage.getItem(KEY) === '1'; sessionStorage.removeItem(KEY); } catch {}
   if (booker && arriving && M) {
     const c = cine(); c.classList.add('shut', 'closed');
     const items = $$('.book-head > *, .book-sum > *, .booker'); items.forEach(x => x.style.opacity = 0);
-    M.animate($('.seam', c), { scaleX: [1, 0] }, { duration: .45, ease: EASE, delay: .1 });
-    M.animate($('.t', c), { y: ['0%', '-100%'] }, { duration: .9, ease: CUT, delay: .35 });
-    M.animate($('.b', c), { y: ['0%', '100%'] }, { duration: .9, ease: CUT, delay: .35 }).finished.then(() => c.remove());
-    M.animate(items, { opacity: [0, 1], y: [36, 0], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 1, ease: EASE, delay: M.stagger(.06, { startDelay: .6 }) });
+    M.animate($('.seam', c), { scaleX: [1, 0] }, { duration: .3, ease: EASE, delay: .05 });
+    M.animate($('.t', c), { y: ['0%', '-100%'] }, { duration: .6, ease: CUT, delay: .2 });
+    M.animate($('.b', c), { y: ['0%', '100%'] }, { duration: .6, ease: CUT, delay: .2 }).finished.then(() => c.remove());
+    M.animate(items, { opacity: [0, 1], y: [16, 0] }, { duration: .7, ease: EASE, delay: M.stagger(.05, { startDelay: .4 }) });
   }
 })();
 

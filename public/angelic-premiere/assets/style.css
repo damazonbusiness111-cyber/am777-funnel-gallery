@@ -578,3 +578,19 @@ h2{font-size:clamp(36px,5vw,66px);line-height:1.02;letter-spacing:-.04em}
 @media (max-width:640px){.book-head{grid-template-columns:minmax(0,1fr) 96px;column-gap:16px}.book-head .crest-wrap{width:96px}}
 
 @media (max-width:860px){.brand .mk{display:block!important}.brand .bt{display:grid!important}.brand .bt>span{display:none}}
+
+
+/* ---------- performance pass: same look, far less paint work ---------- */
+.hero2::before{mix-blend-mode:normal;opacity:.05}
+.intro{-webkit-mask:none;mask:none}
+.slides img{transition:opacity 1.2s var(--ease),transform 7s linear;transform:scale(1.04)}
+.slides img.on{transform:scale(1)}
+.hdr,.has-hero .hdr.solid{backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px)}
+.qb,.fab{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.crest-wrap::before{animation:none;opacity:.8}
+.crest-wrap{will-change:auto}
+.intro-on .crest-wrap{will-change:transform}
+.cine.frame i{height:7vh}
+.cine .seam{box-shadow:0 0 10px 1px rgba(230,207,152,.35)}
+.slide .ph img,.ex-stage img,.gal figure img{will-change:auto}
+.unit:hover figure img,.slide:hover .ph img{transform:scale(1.025)}
