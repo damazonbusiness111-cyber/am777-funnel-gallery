@@ -594,3 +594,33 @@ h2{font-size:clamp(36px,5vw,66px);line-height:1.02;letter-spacing:-.04em}
 .cine .seam{box-shadow:0 0 10px 1px rgba(230,207,152,.35)}
 .slide .ph img,.ex-stage img,.gal figure img{will-change:auto}
 .unit:hover figure img,.slide:hover .ph img{transform:scale(1.025)}
+
+
+/* ---------- declutter + render smoothness ---------- */
+.links{gap:34px}
+.hdr .wrap{min-height:64px;gap:18px}
+.hero2 .hero-top{gap:22px}
+.hero2 .acts{margin-top:10px}
+.facts{border-top:.5px solid var(--sep);padding-top:28px}
+.facts div{padding-inline:28px}
+/* skip layout/paint for off-screen sections until they scroll near */
+main>section:not(.hero),.sec{content-visibility:auto;contain-intrinsic-size:auto 900px}
+/* compositor-only hover states */
+.pill,.theme-btn,.menu-btn{transition:transform .35s var(--ease),filter .3s,background-color .3s}
+
+
+/* ---------- floating logo CTA (replaces the text pill) ---------- */
+.fab-logo{position:fixed;left:auto;right:max(22px,env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:none;
+  width:64px;height:64px;border-radius:50%;padding:0;display:grid;place-items:center;text-decoration:none;z-index:55;
+  background:#141210;box-shadow:0 18px 40px -14px rgba(0,0,0,.55),inset 0 0 0 1px rgba(201,168,76,.45);backdrop-filter:none;-webkit-backdrop-filter:none;
+  animation:fabfloat 4.5s ease-in-out infinite}
+.fab-logo .mk{width:22px;height:31px;display:block;background:#c9a84c;-webkit-mask:url(../img/mark.png) center/contain no-repeat;mask:url(../img/mark.png) center/contain no-repeat;transition:transform .6s var(--ease)}
+.fab-logo .ring{position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(201,168,76,.35);animation:fabring 3.2s ease-out infinite}
+.fab-logo .tip{position:absolute;right:calc(100% + 12px);top:50%;transform:translate(6px,-50%);opacity:0;pointer-events:none;white-space:nowrap;
+  background:#141210;color:#f5f2ea;font-size:13px;font-weight:500;letter-spacing:.06em;padding:8px 12px;border-radius:999px;transition:opacity .3s,transform .4s var(--ease)}
+.fab-logo:hover .tip,.fab-logo:focus-visible .tip{opacity:1;transform:translate(0,-50%)}
+.fab-logo:hover .mk{transform:rotateY(180deg)}
+.fab-logo:active{transform:scale(.94)}
+@keyframes fabfloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@keyframes fabring{0%{transform:scale(.92);opacity:.9}100%{transform:scale(1.28);opacity:0}}
+@media (prefers-reduced-motion:reduce){.fab-logo,.fab-logo .ring{animation:none}}

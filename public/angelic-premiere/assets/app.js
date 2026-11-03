@@ -557,5 +557,5 @@ function openPicker() {
 window.__angelicView = { open: () => { closeShell(); openPicker(); } };
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => window.__angelicView.open()));
 const saved = get();
-if (saved) apply(saved); else openPicker();
+if (saved) apply(saved);
 })();
