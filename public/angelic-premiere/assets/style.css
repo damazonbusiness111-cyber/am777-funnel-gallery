@@ -489,3 +489,17 @@ a.row .chev{margin-left:auto;color:var(--mute);width:8px;height:14px;flex:0 0 au
 .ftr .credit{flex-basis:100%;margin:6px 0 0;padding-top:18px;border-top:.5px solid var(--sep);font-size:12.5px;letter-spacing:.04em;color:var(--mute)}
 .ftr .credit a{color:var(--accent);font-weight:500}
 .intro-credit{position:absolute;left:0;right:0;bottom:calc(22px + env(safe-area-inset-bottom,0px));margin:0;text-align:center;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(243,241,236,.38)}
+
+
+/* ---------- theme toggle ---------- */
+.theme-btn{width:38px;height:38px;border-radius:50%;border:0;background:var(--fill);color:var(--fg);cursor:pointer;display:inline-grid;place-items:center;flex:0 0 auto;transition:background .3s}
+.theme-btn:hover{background:var(--fill-2)}
+.theme-btn svg{width:18px;height:18px;grid-area:1/1}
+.theme-btn .moon{display:none}
+:root[data-theme="dark"] .theme-btn .sun{display:none}
+:root[data-theme="dark"] .theme-btn .moon{display:block}
+.has-hero .hdr:not(.solid) .theme-btn{background:rgba(255,255,255,.16);color:#fff}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-new(root){z-index:9999}
+@media (max-width:420px){.hdr .wrap{gap:10px}.theme-btn,.view-btn,.menu-btn{width:34px;height:34px}}
+@media (max-width:860px){.u-title .pr{text-align:left}}

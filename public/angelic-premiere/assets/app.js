@@ -436,6 +436,30 @@ if (booker) {
   }
 })();
 
+
+/* ================= THEME TOGGLE: light by default, dark on request, circular reveal ================= */
+(() => {
+  const H = document.documentElement;
+  const btns = $$('[data-theme-toggle]');
+  const label = () => btns.forEach(b => { const d = H.dataset.theme === 'dark'; b.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode'); b.setAttribute('aria-pressed', d); });
+  if (!H.dataset.theme) H.dataset.theme = 'light';
+  label();
+  const apply = t => { H.dataset.theme = t; try { localStorage.setItem('angelic-theme', t); } catch {} label();
+    $$('meta[name="theme-color"]').forEach(m => m.content = t === 'dark' ? '#0b0b0a' : '#f6f5f2');
+    try { $$('iframe.view-frame').forEach(f => f.contentDocument.documentElement.dataset.theme = t); } catch {}
+  };
+  btns.forEach(b => b.addEventListener('click', () => {
+    const next = H.dataset.theme === 'dark' ? 'light' : 'dark';
+    const r = b.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const rad = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    if (M) M.animate(b.querySelectorAll('svg'), { rotate: [-90, 0], scale: [.5, 1] }, { type: 'spring', stiffness: 300, damping: 18 });
+    if (!document.startViewTransition || RM) return apply(next);
+    const vt = document.startViewTransition(() => apply(next));
+    vt.ready.then(() => H.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${rad}px at ${x}px ${y}px)`] },
+      { duration: 750, easing: 'cubic-bezier(.7,0,.2,1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
+  }));
+})();
+
 /* floating book pill: shows after the quick booking bar leaves view */
 const fab = $('.fab');
 if (fab) {
