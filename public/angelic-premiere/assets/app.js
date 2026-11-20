@@ -339,7 +339,7 @@ if (booker) {
   if (!intro || !cw) return;
   const H = document.documentElement;
   const heldItems = () => $$('.hero2 .hero-top > :not(.crest-wrap), .hero2 .slide-dots, .hero2 .scroll-cue');
-  let seen = false; try { seen = sessionStorage.getItem('angelic-intro') === '1'; } catch {}
+  let seen = false; try { seen = sessionStorage.getItem('angelic-intro') === '1' && !!document.referrer && new URL(document.referrer).origin === location.origin; } catch {}
   const finish = () => { intro.remove(); cw.style.transform = ''; H.classList.remove('intro-on', 'intro-lock'); window.__crest?.scale(1); window.__heroIn?.(); };
   if (!M || seen) { intro.remove(); window.__heroIn?.(); return; }
 
@@ -362,10 +362,12 @@ if (booker) {
 
   // entrance: letters rise in one by one, then the subtitle and controls
   M.animate($$('.intro-word span', intro), { opacity: [0, 1], y: [10, 0] }, { duration: .7, ease: EASE, delay: M.stagger(.04, { startDelay: .35 }) });
-  M.animate($$('.intro-sub, .intro-foot, .intro-skip', intro), { opacity: [0, 1] }, { duration: .7, ease: EASE, delay: M.stagger(.08, { startDelay: .75 }) });
+  M.animate($$('.intro-sub, .intro-line, .intro-foot', intro), { opacity: [0, 1], y: [8, 0] }, { duration: 1.1, ease: EASE, delay: M.stagger(.18, { startDelay: 1.1 }) });
+  M.animate($$('.intro-welcome, .intro-band span', intro), { opacity: [0, 1] }, { duration: 1.4, ease: EASE, delay: M.stagger(.1, { startDelay: .3 }) });
+  M.animate($$('.intro-band', intro), { scaleY: [0, 1] }, { duration: 1.2, ease: [.45, 0, .15, 1] });
 
   const AUTO = 3.8;
-  const arm = () => { clearTimeout(timer); timer = setTimeout(enter, AUTO * 1000); };
+  const arm = () => {};
   const hold = () => clearTimeout(timer);
   cw.addEventListener('pointerdown', () => { if (!leaving) hold(); });
   cw.addEventListener('pointerup', () => { if (!leaving) setTimeout(arm, 1200); });
@@ -384,7 +386,8 @@ if (booker) {
     clearTimeout(timer); removeEventListener('resize', place);
     try { sessionStorage.setItem('angelic-intro', '1'); } catch {}
     heldItems().forEach(el => el.style.opacity = 0);
-    M.animate($$('.intro-brand, .intro-foot, .intro-skip', intro), { opacity: 0 }, { duration: .35, ease: EASE });
+    M.animate($$('.intro-brand, .intro-foot, .intro-line, .intro-welcome, .intro-band span', intro), { opacity: 0 }, { duration: .45, ease: EASE });
+    M.animate($('.intro-bg', intro), { scale: [1, 1.12] }, { duration: 2.2, ease: [.45, 0, .15, 1] });
     const from = cw.style.transform || 'none';
     // slim letterbox frames the cut, then eases away
     const lb = cine(); lb.classList.add('frame');
@@ -399,8 +402,7 @@ if (booker) {
     setTimeout(() => { intro.remove(); cw.style.transform = ''; H.classList.remove('intro-lock'); window.__crest?.scale(1); }, 2300);
   }
   $('.intro-enter', intro).addEventListener('click', enter);
-  $('.intro-skip', intro).addEventListener('click', enter);
-  addEventListener('keydown', e => { if (!leaving && (e.key === 'Enter' || e.key === 'Escape') && !$('.vp')) { e.preventDefault(); enter(); } });
+    addEventListener('keydown', e => { if (!leaving && (e.key === 'Enter' || e.key === 'Escape') && !$('.vp')) { e.preventDefault(); enter(); } });
 })();
 
 

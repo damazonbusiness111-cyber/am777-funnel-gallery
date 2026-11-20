@@ -628,3 +628,29 @@ main>section:not(.hero),.sec{content-visibility:auto;contain-intrinsic-size:auto
 /* instant toggles */
 .theme-btn,.seg button,.opt .chk,.opt .chk svg,.steps-nav li,.ex-thumbs button{transition-duration:.12s!important}
 :root{transition:none}
+
+
+/* ---------- cinematic welcome page ---------- */
+.intro{background:#070606}
+.intro-bg{position:absolute;inset:-4%;background:url(../img/slide-pool.webp) center 60%/cover no-repeat;filter:brightness(.46) saturate(.9) contrast(1.05);
+  transform-origin:50% 55%;animation:introdrift 26s ease-in-out infinite alternate}
+.intro-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(55% 50% at 50% 46%,rgba(7,6,6,.15),rgba(7,6,6,.82) 78%),linear-gradient(180deg,rgba(7,6,6,.5),transparent 30%,transparent 70%,rgba(7,6,6,.6))}
+@keyframes introdrift{from{transform:scale(1.02) translate3d(-1%,0,0)}to{transform:scale(1.1) translate3d(1%,-1%,0)}}
+.intro-band{position:absolute;left:0;right:0;height:7vh;min-height:44px;background:#030303;display:flex;align-items:center;justify-content:space-between;
+  padding:0 max(24px,env(safe-area-inset-right,0px)) 0 max(24px,env(safe-area-inset-left,0px));font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:rgba(243,241,236,.5);z-index:2}
+.intro-band.top{top:0;transform-origin:top;padding-top:env(safe-area-inset-top,0px)}
+.intro-band.bottom{bottom:0;transform-origin:bottom;padding-bottom:env(safe-area-inset-bottom,0px)}
+.intro-band span{opacity:0}
+.intro-inner{position:relative;z-index:1;gap:clamp(14px,2.4vh,22px)}
+.intro-welcome{font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:rgba(230,207,152,.75);padding-left:.42em;opacity:0}
+.intro-line{margin:0;font-size:clamp(16px,1.6vw,19px);font-weight:300;color:rgba(243,241,236,.72);letter-spacing:.01em;opacity:0}
+.intro-enter{margin-top:10px;display:inline-flex;align-items:center;gap:14px;background:none;border:0;cursor:pointer;color:#f3f1ec;
+  font:500 12px/1 var(--f);letter-spacing:.42em;text-transform:uppercase;padding:16px 4px 16px calc(4px + .42em)}
+.intro-enter i{display:block;width:44px;height:1px;background:#e6cf98;transform-origin:left;transition:transform .6s var(--ease)}
+.intro-enter:hover i{transform:scaleX(1.6)}
+.intro-enter:hover{color:#e6cf98}
+.intro-enter:focus-visible{outline:1px solid #e6cf98;outline-offset:6px;box-shadow:none}
+.intro-credit,.intro-skip{display:none}
+@media (max-width:520px){.intro-band{font-size:9px;letter-spacing:.22em}.intro-band.top span:last-child,.intro-hint-k{display:none}.intro-band.top{justify-content:center}}
+@media (hover:none){.intro-hint-k{display:none}}
+@media (prefers-reduced-motion:reduce){.intro-bg{animation:none}}
