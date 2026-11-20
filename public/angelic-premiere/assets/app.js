@@ -388,13 +388,15 @@ if (booker) {
     const from = cw.style.transform || 'none';
     // slim letterbox frames the cut, then eases away
     const lb = cine(); lb.classList.add('frame');
-    M.animate($$('i', lb), { scaleY: [0, 1] }, { duration: .45, ease: [.65, 0, .35, 1] });
-    M.animate($$('i', lb), { scaleY: 0 }, { duration: .7, ease: [.65, 0, .35, 1], delay: 1.05 }).finished.then(() => lb.remove());
-    M.animate(cw, { transform: [from, 'translate(0px, 0px) scale(1)'] }, { duration: 1.05, ease: [.65, 0, .35, 1], delay: .1 });
-    M.animate(intro, { opacity: [1, 0] }, { duration: .8, ease: [.65, 0, .35, 1], delay: .3 });
-    setTimeout(() => H.classList.remove('intro-on'), 650);
-    setTimeout(() => window.__heroIn?.(), 750);
-    setTimeout(() => { intro.remove(); cw.style.transform = ''; H.classList.remove('intro-lock'); window.__crest?.scale(1); }, 1250);
+    const SLOW = [.45, 0, .15, 1];                                   // slow-in, long slow-out: reads as slow motion
+    window.__crest?.turn?.(2.4);
+    M.animate($$('i', lb), { scaleY: [0, 1] }, { duration: .7, ease: SLOW });
+    M.animate($$('i', lb), { scaleY: 0 }, { duration: 1.2, ease: SLOW, delay: 1.7 }).finished.then(() => lb.remove());
+    M.animate(cw, { transform: [from, 'translate(0px, 0px) scale(1)'] }, { duration: 1.9, ease: SLOW, delay: .25 });
+    M.animate(intro, { opacity: [1, 0] }, { duration: 1.3, ease: SLOW, delay: .45 });
+    setTimeout(() => H.classList.remove('intro-on'), 1100);
+    setTimeout(() => window.__heroIn?.(), 1350);
+    setTimeout(() => { intro.remove(); cw.style.transform = ''; H.classList.remove('intro-lock'); window.__crest?.scale(1); }, 2300);
   }
   $('.intro-enter', intro).addEventListener('click', enter);
   $('.intro-skip', intro).addEventListener('click', enter);
@@ -429,6 +431,7 @@ if (booker) {
     M.animate($('.t', c), { y: ['0%', '-100%'] }, { duration: .6, ease: CUT, delay: .2 });
     M.animate($('.b', c), { y: ['0%', '100%'] }, { duration: .6, ease: CUT, delay: .2 }).finished.then(() => c.remove());
     M.animate(items, { opacity: [0, 1], y: [16, 0] }, { duration: .7, ease: EASE, delay: M.stagger(.05, { startDelay: .4 }) });
+    setTimeout(() => window.__crest?.turn?.(2.2), 700);
   }
 })();
 
