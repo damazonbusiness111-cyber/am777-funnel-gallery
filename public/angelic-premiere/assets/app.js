@@ -339,7 +339,7 @@ if (booker) {
   if (!intro || !cw) return;
   const H = document.documentElement;
   const heldItems = () => $$('.hero2 .hero-top > :not(.crest-wrap), .hero2 .slide-dots, .hero2 .scroll-cue');
-  let seen = false; try { seen = sessionStorage.getItem('angelic-intro') === '1' && !!document.referrer && new URL(document.referrer).origin === location.origin; } catch {}
+  let seen = false; try { seen = sessionStorage.getItem('angelic-intro') === '1' && ((!!document.referrer && new URL(document.referrer).origin === location.origin) || performance.getEntriesByType('navigation')[0]?.type === 'back_forward'); } catch {}
   const finish = () => { intro.remove(); cw.style.transform = ''; H.classList.remove('intro-on', 'intro-lock'); window.__crest?.scale(1); window.__heroIn?.(); };
   if (!M || seen) { intro.remove(); window.__heroIn?.(); return; }
 
