@@ -25,7 +25,7 @@ cam.position.set(0, 0, 5.4);
    which some integrated GPUs (Intel Iris / ANGLE) fail on, leaving metals pure black. */
 const cubeFace = (top) => {
   const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
-  g.fillStyle = top === 'py' ? '#2a241c' : top === 'ny' ? '#0d0b09' : '#16130f'; g.fillRect(0, 0, 256, 256);
+  g.fillStyle = top === 'py' ? '#3a3024' : top === 'ny' ? '#0d0b09' : top === 'pz' ? '#2c2419' : '#1c1813'; g.fillRect(0, 0, 256, 256);
   const strip = (x, y, w, h, a) => { const gr = g.createLinearGradient(x, 0, x + w, 0); gr.addColorStop(0, `rgba(255,244,222,0)`); gr.addColorStop(.5, `rgba(255,246,228,${a})`); gr.addColorStop(1, `rgba(255,244,222,0)`); g.fillStyle = gr; g.fillRect(x, y, w, h); };
   if (top === 'pz') { strip(40, 20, 46, 216, 1); strip(170, 30, 30, 200, .7); }     // front: two tall strips (the clean double highlight)
   else if (top === 'nx') { strip(90, 30, 70, 196, .9); }                              // key side
@@ -51,7 +51,7 @@ geo.translate(0, 0, -.07);
 /* caps share one group; split it so the back cap gets its own (un-mirrored) material */
 { const [lid, side] = geo.groups, half = lid.count / 2; geo.clearGroups(); geo.addGroup(lid.start, half, 2); geo.addGroup(lid.start + half, half, 0); geo.addGroup(side.start, side.count, 1); }
 
-const rim = new THREE.MeshStandardMaterial({ color: 0xdcb86e, metalness: 1, roughness: .16, envMap, envMapIntensity: 1.9, emissive: 0x2a1c08, emissiveIntensity: .45 });
+const rim = new THREE.MeshStandardMaterial({ color: 0xe6c27a, metalness: 1, roughness: .15, envMap, envMapIntensity: 2.2, emissive: 0x2e1f08, emissiveIntensity: .4 });
 const face = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 1, envMap, envMapIntensity: 1.3, emissive: 0xffffff, emissiveIntensity: .28 });
 const back = face.clone();
 const crest = new THREE.Mesh(geo, [face, rim, back]);
@@ -61,39 +61,49 @@ const rig = new THREE.Group(); rig.add(crest); scene.add(rig);
 const sweep = new THREE.SpotLight(0xfff4dc, 0, 14, .32, .65, 1.2);
 sweep.position.set(-4, 2.5, 4); sweep.target = rig; scene.add(sweep);
 
-/* build colour / metal-rough / bump maps from the logo artwork */
+/* build the face maps from a crisp 2048px gold mask of the logo artwork:
+   graded gold (pale highlight → rich mid → deep shadow), fine horizontal brushing,
+   a chamfered raised inlay, and black lacquer / smoked glass everywhere else */
 const img = new Image();
 img.onload = () => {
-  const N = 768, mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c; };
+  const N = 1536, mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c; };
   const src = mk(), sx = src.getContext('2d'); sx.drawImage(img, 0, 0, N, N);
-  const d = sx.getImageData(0, 0, N, N).data;
-  const col = mk(), mr = mk(), bump = mk();
-  const cx = col.getContext('2d'), mx = mr.getContext('2d'), bx = bump.getContext('2d');
-  const C = cx.createImageData(N, N), Mr = mx.createImageData(N, N), B = bx.createImageData(N, N);
-  for (let i = 0; i < d.length; i += 4) {
-    const a = d[i + 3] / 255, lum = (d[i] * .4 + d[i + 1] * .45 + d[i + 2] * .15) / 255;
-    const t = Math.min(1, Math.max(0, (lum - .16) / .55)) * a;           // 0 = black lacquer, 1 = gold
-    C.data[i] = 26 + t * (232 - 26); C.data[i + 1] = 23 + t * (204 - 23); C.data[i + 2] = 20 + t * (150 - 20); C.data[i + 3] = 255;
-    Mr.data[i] = 0; Mr.data[i + 1] = 255 * (.4 - t * .18); Mr.data[i + 2] = 255 * (.05 + t * .83); Mr.data[i + 3] = 255;
-    B.data[i] = B.data[i + 1] = B.data[i + 2] = t * 255; B.data[i + 3] = 255;
+  const m = sx.getImageData(0, 0, N, N).data;
+  const col = mk(), mr = mk(), em = mk(), al = mk(), bump = mk();
+  const cx = col.getContext('2d'), mx = mr.getContext('2d'), ex = em.getContext('2d'), ax = al.getContext('2d'), bx = bump.getContext('2d');
+  const C = cx.createImageData(N, N), Mr = mx.createImageData(N, N), E = ex.createImageData(N, N), A = ax.createImageData(N, N), B = bx.createImageData(N, N);
+  // brushed-metal grain: per-row noise with a slow horizontal drift
+  const rowN = new Float32Array(N); for (let y = 0; y < N; y++) rowN[y] = Math.random();
+  for (let y = 1; y < N; y++) rowN[y] = rowN[y] * .55 + rowN[y - 1] * .45;
+  const gold = (u) => {                       // u: 0 top → 1 bottom; three-stop gold ramp with a bright band
+    const band = Math.exp(-Math.pow((u - .34) / .09, 2)) * .55 + Math.exp(-Math.pow((u - .78) / .07, 2)) * .3;
+    const r = 196 + 58 * (1 - u) + 40 * band, g = 152 + 62 * (1 - u) + 44 * band, bl = 72 + 44 * (1 - u) + 50 * band;
+    return [Math.min(255, r), Math.min(255, g), Math.min(255, bl)];
+  };
+  for (let y = 0; y < N; y++) {
+    const u = y / N, gc = gold(u), grain = rowN[y];
+    for (let x = 0; x < N; x++) {
+      const i = (y * N + x) * 4, t = m[i] / 255;
+      const n = grain * .8 + Math.sin(x * .013 + y * .002) * .1;
+      const k = .92 + n * .16;                                    // brushed variation in the gold
+      C.data[i] = 22 + t * (gc[0] * k - 22); C.data[i + 1] = 19 + t * (gc[1] * k - 19); C.data[i + 2] = 16 + t * (gc[2] * k - 16); C.data[i + 3] = 255;
+      Mr.data[i] = 0; Mr.data[i + 1] = 255 * (.34 - t * (.16 + n * .06)); Mr.data[i + 2] = 255 * (.04 + t * .58); Mr.data[i + 3] = 255;
+      E.data[i] = gc[0] * .42 * t; E.data[i + 1] = gc[1] * .36 * t; E.data[i + 2] = gc[2] * .26 * t; E.data[i + 3] = 255;
+      const v = 255 * Math.max(GLASS, Math.min(1, t * 1.2)); A.data[i] = A.data[i + 1] = A.data[i + 2] = v; A.data[i + 3] = 255;
+      B.data[i] = B.data[i + 1] = B.data[i + 2] = t * 255; B.data[i + 3] = 255;
+    }
   }
-  cx.putImageData(C, 0, 0); mx.putImageData(Mr, 0, 0); bx.putImageData(B, 0, 0);
-  const em = mk(), ex = em.getContext('2d'), E = ex.createImageData(N, N);
-  for (let i = 0; i < d.length; i += 4) { const k = C.data[i] > 60 ? (C.data[i] - 20) / 212 : 0; E.data[i] = 150 * k; E.data[i + 1] = 118 * k; E.data[i + 2] = 64 * k; E.data[i + 3] = 255; }
-  ex.putImageData(E, 0, 0);
-  const al = mk(), ax = al.getContext('2d'), A = ax.createImageData(N, N);
-  for (let i = 0; i < d.length; i += 4) { const t = (C.data[i] - 26) / (232 - 26); const v = 255 * Math.max(GLASS, Math.min(1, t * 1.15)); A.data[i] = A.data[i + 1] = A.data[i + 2] = v; A.data[i + 3] = 255; }
-  ax.putImageData(A, 0, 0);
-  const soft = mk(), so = soft.getContext('2d'); so.filter = 'blur(3px)'; so.drawImage(bump, 0, 0);
+  cx.putImageData(C, 0, 0); mx.putImageData(Mr, 0, 0); ex.putImageData(E, 0, 0); ax.putImageData(A, 0, 0); bx.putImageData(B, 0, 0);
+  const soft = mk(), so = soft.getContext('2d'); so.filter = 'blur(2.5px)'; so.drawImage(bump, 0, 0);   // chamfered edge on the raised inlay
   const tex = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.encoding = THREE.sRGBEncoding; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); t.repeat.set(.5, .5); t.offset.set(.5, .5); return t; };
-  face.map = tex(col, true); face.alphaMap = tex(al); face.transparent = true; face.emissiveMap = tex(em, true); face.metalnessMap = face.roughnessMap = tex(mr); face.bumpMap = tex(soft); face.bumpScale = .022;
-  face.needsUpdate = true;
+  face.map = tex(col, true); face.alphaMap = tex(al); face.transparent = true; face.emissiveMap = tex(em, true); face.metalnessMap = face.roughnessMap = tex(mr); face.bumpMap = tex(soft); face.bumpScale = .028;
+  face.emissiveIntensity = .8; face.needsUpdate = true;
   /* back cap: same artwork, flipped horizontally so it reads correctly from behind */
   const flip = t => { const c = t.clone(); c.repeat.set(-.5, .5); c.offset.set(.5, .5); c.needsUpdate = true; return c; };
-  back.map = flip(face.map); back.emissiveMap = flip(face.emissiveMap); back.alphaMap = flip(face.alphaMap); back.transparent = true; back.metalnessMap = back.roughnessMap = flip(face.metalnessMap); back.bumpMap = flip(face.bumpMap); back.bumpScale = face.bumpScale; back.needsUpdate = true;
+  back.map = flip(face.map); back.emissiveMap = flip(face.emissiveMap); back.alphaMap = flip(face.alphaMap); back.transparent = true; back.metalnessMap = back.roughnessMap = flip(face.metalnessMap); back.bumpMap = flip(face.bumpMap); back.bumpScale = face.bumpScale; back.emissiveIntensity = face.emissiveIntensity; back.needsUpdate = true;
   start();
 };
-img.src = cv.dataset.src || 'img/crest.png';
+img.src = cv.dataset.mask || 'img/crest-mask.png';
 
 /* interaction */
 let tx = 0, ty = 0, cxp = 0, cyp = 0, spin = 0, vel = 0, drag = null, hover = 0, hv = 0;
