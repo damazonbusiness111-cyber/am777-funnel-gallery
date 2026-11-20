@@ -97,7 +97,6 @@ if (slides.length) {
   const show = n => { slides[i].classList.remove('on'); dots[i]?.setAttribute('aria-current', 'false'); i = (n + slides.length) % slides.length; slides[i].classList.add('on'); dots[i]?.setAttribute('aria-current', 'true'); };
   let timer = RM ? null : setInterval(() => show(i + 1), 6500);
   dots.forEach((d, n) => d.addEventListener('click', () => { show(n); clearInterval(timer); timer = RM ? null : setInterval(() => show(i + 1), 6500); }));
-  if (M) M.scroll(M.animate($('.slides'), { y: ['0%', '10%'] }, { ease: 'linear' }), { target: $('.hero'), offset: ['start start', 'end start'] });
 }
 const hdr = $('.hdr');
 if (document.body.classList.contains('has-hero') && hdr) {

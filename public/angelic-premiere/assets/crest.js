@@ -66,7 +66,7 @@ sweep.position.set(-4, 2.5, 4); sweep.target = rig; scene.add(sweep);
    a chamfered raised inlay, and black lacquer / smoked glass everywhere else */
 const img = new Image();
 img.onload = () => {
-  const N = 1536, mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c; };
+  const N = 1024, mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c; };
   const src = mk(), sx = src.getContext('2d'); sx.drawImage(img, 0, 0, N, N);
   const m = sx.getImageData(0, 0, N, N).data;
   const col = mk(), mr = mk(), em = mk(), al = mk(), bump = mk();
@@ -94,7 +94,7 @@ img.onload = () => {
     }
   }
   cx.putImageData(C, 0, 0); mx.putImageData(Mr, 0, 0); ex.putImageData(E, 0, 0); ax.putImageData(A, 0, 0); bx.putImageData(B, 0, 0);
-  const soft = mk(), so = soft.getContext('2d'); so.filter = 'blur(2.5px)'; so.drawImage(bump, 0, 0);   // chamfered edge on the raised inlay
+  const soft = mk(), so = soft.getContext('2d'); so.filter = 'blur(1.8px)'; so.drawImage(bump, 0, 0);   // chamfered edge on the raised inlay
   const tex = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.encoding = THREE.sRGBEncoding; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); t.repeat.set(.5, .5); t.offset.set(.5, .5); return t; };
   face.map = tex(col, true); face.alphaMap = tex(al); face.transparent = true; face.emissiveMap = tex(em, true); face.metalnessMap = face.roughnessMap = tex(mr); face.bumpMap = tex(soft); face.bumpScale = .028;
   face.emissiveIntensity = .8; face.needsUpdate = true;

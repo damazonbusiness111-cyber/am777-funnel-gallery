@@ -654,3 +654,15 @@ main>section:not(.hero),.sec{content-visibility:auto;contain-intrinsic-size:auto
 @media (max-width:520px){.intro-band{font-size:9px;letter-spacing:.22em}.intro-band.top span:last-child,.intro-hint-k{display:none}.intro-band.top{justify-content:center}}
 @media (hover:none){.intro-hint-k{display:none}}
 @media (prefers-reduced-motion:reduce){.intro-bg{animation:none}}
+
+
+/* ---------- smoothness pass 2: no live blur behind fixed bars, no full-screen overlays ---------- */
+.hdr,.has-hero .hdr.solid{backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--bg) 94%,transparent)}
+.has-hero .hdr:not(.solid){background:transparent}
+.hero2::before{display:none}
+.slides img{transition:opacity 1.2s var(--ease);transform:none}
+.slides img.on{transform:none}
+.slide:hover .ph img,.unit:hover figure img{transform:none}
+.crest-wrap::before{filter:blur(14px)}
+.split .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:480px){.split .stats b{font-size:30px}.split .stats span{font-size:13px}}
